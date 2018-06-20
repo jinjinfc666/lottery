@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.jll.entity.TbLtInfo" table="tbLtInfo">
+		<id name="id" type="long">
+			<generator class="increment" />
+		</id>
+		<property name="lotteryType" type="java.lang.String">
+            <column name="lotterytype" length="50" />
+        </property>
+        <property name="expect" type="java.lang.String">
+            <column name="expect" />
+        </property>
+        <property name="codes" type="java.lang.String">
+            <column name="codes" length="50" />
+        </property>
+        <property name="kjTime" type="java.util.Date">
+            <column name="kjtime" length="50" />
+        </property>
+        <property name="addTime" type="java.util.Date">
+            <column name="addtime" length="50" />
+        </property>
+        <property name="state" type="java.lang.String">
+            <column name="state" length="50" />
+        </property>
+        <property name="ifCatch" type="java.lang.Integer">
+            <column name="ifcatch" length="50" />
+        </property>
+	</class>
+</hibernate-mapping>

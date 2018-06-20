@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.jll.entity.TbBankback" table="tbBankback">
+	    <id name="id" type="java.lang.Integer">
+			<generator class="identity" />
+		</id>
+		<property name="tradeNum" type="java.lang.String">
+            <column name="tradenum" length="50" />
+        </property>
+        <property name="userName" type="java.lang.String">
+            <column name="username" />
+        </property>
+        <property name="backType" type="java.lang.String">
+            <column name="backtype" length="50" />
+        </property>
+        <property name="backTypeText" type="java.lang.String">
+            <column name="backtypetext" length="50" />
+        </property>
+        <property name="backMoney" type="java.lang.Float">
+            <column name="backmoney" length="50" />
+        </property>
+        <property name="backBefor" type="java.lang.Float">
+            <column name="backbefor" length="50" />
+        </property>
+        <property name="backAfter" type="java.lang.Float">
+            <column name="backafter" length="50" />
+        </property>
+        <property name="state" type="java.lang.String">
+            <column name="state" length="50" />
+        </property>
+        <property name="follows" type="java.lang.String">
+            <column name="follows" length="50" />
+        </property>
+        <property name="addTime" type="java.util.Date">
+            <column name="addtime" length="50" />
+        </property>
+        <property name="webSite" type="java.lang.String">
+            <column name="website" length="50" />
+        </property>
+        <property name="updateTime" type="java.util.Date">
+            <column name="updatetime" length="50" />
+        </property>
+        <property name="bankUser" type="java.lang.String">
+            <column name="bankuser" length="50" />
+        </property>
+        <property name="activityType" type="java.lang.Integer">
+            <column name="activitytype" length="50" />
+        </property>
+        <property name="ifDeal" type="java.lang.Integer">
+            <column name="ifdeal" length="50" />
+        </property>
+        <property name="ifAutoTransfer" type="java.lang.Integer">
+            <column name="ifautotransfer" length="50" />
+        </property>
+	</class>
+</hibernate-mapping>

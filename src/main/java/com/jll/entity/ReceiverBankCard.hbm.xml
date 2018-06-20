@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.jll.entity.ReceiverBankCard" table="tbPayBank_New">
+		<id name="id" type="int">
+			<generator class="increment" />
+		</id>
+		<property name="platform" type="java.lang.String">
+            <column name="platform" length="100" />
+        </property>
+        <property name="payType" type="java.lang.String">
+            <column name="paytype" />
+        </property>
+        <property name="bankAccount" type="java.lang.String">
+            <column name="bankaccount" length="50" />
+        </property>
+        <property name="BankNum" type="java.lang.String">
+            <column name="banknum" length="50" />
+        </property>
+        <property name="bankName" type="java.lang.String">
+            <column name="bankname" length="50" />
+        </property>
+        <property name="remark" type="java.lang.String">
+            <column name="remark" length="50" />
+        </property>
+        
+        <property name="ico" type="java.lang.String">
+            <column name="ico" />
+        </property>
+        <property name="images" type="java.lang.String">
+            <column name="images" length="50" />
+        </property>
+        <property name="state" type="java.lang.String">
+            <column name="state" length="50" />
+        </property>
+        <property name="bankUrl" type="java.lang.String">
+            <column name="bankurl" length="50" />
+        </property>
+        <property name="px" type="java.lang.Integer">
+            <column name="px" length="50" />
+        </property>
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+ xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"  
+ xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"  
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd   
+   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd   
+   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd   
+   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+      
+    
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+	
+	<!-- <bean id="stockInfoDao" class="com.ehome.stock.common.dao.StockInfoDao">
+		<property name="redisTemplate" ref="redisTemplate" />
+	</bean>
+    
+    <bean id="stockManagementDao" class="com.ehome.stock.common.dao.StockManagementDao">
+		<property name="redisTemplate" ref="redisTemplate" />
+	</bean>
+	
+	<bean id="stockExcDao" class="com.ehome.stock.common.dao.StockExcDao">
+		<property name="redisTemplate" ref="redisTemplate" />
+	</bean> -->
+	
+</beans>

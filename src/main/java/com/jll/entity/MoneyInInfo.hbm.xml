@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.jll.entity.MoneyInInfo" table="MoneyInInfo">
+		<id name="recordID" type="java.lang.Integer">
+			<!-- <generator class="increment" /> -->
+			<generator class="identity" />
+		</id>
+		<property name="userID" type="java.lang.String">
+            <column name="UserID" length="50" />
+        </property>
+        <property name="amount" type="java.lang.Float">
+            <column name="Amount" />
+        </property>
+        <property name="dealTime" type="java.util.Date">
+            <column name="DealTime" length="50" />
+        </property>
+        <property name="status" type="java.lang.Integer">
+            <column name="Status" length="50" />
+        </property>
+        <property name="comment" type="java.lang.String">
+            <column name="Comment" length="50" />
+        </property>
+        <property name="rechargeType" type="java.lang.String">
+            <column name="RechargeType" length="50" />
+        </property>
+        <property name="payValidatecode" type="java.lang.String">
+            <column name="PayValidatecode" length="50" />
+        </property>
+        <property name="orderTime" type="java.util.Date">
+            <column name="OrderTime" length="50" />
+        </property>
+        <property name="orderNumber" type="java.lang.String">
+            <column name="OrderNumber" length="50" />
+        </property>
+        <property name="cashAdd" type="java.lang.Float">
+            <column name="CashAdd" length="50" />
+        </property>
+	</class>
+</hibernate-mapping>

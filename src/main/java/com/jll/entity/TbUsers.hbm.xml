@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.jll.entity.TbUsers" table="tbUsers">
+		<id name="id" type="long">
+			<generator class="increment" />
+		</id>
+		<property name="userName" type="java.lang.String">
+            <column name="username" length="100" />
+        </property>
+        <property name="password1" type="java.lang.String">
+            <column name="password1" />
+        </property>
+        <property name="password2" type="java.lang.String">
+            <column name="password2" length="50" />
+        </property>
+        <property name="nickName" type="java.lang.String">
+            <column name="nickname" length="50" />
+        </property>
+        <property name="userMoney" type="java.lang.Float">
+            <column name="usermoney" length="50" />
+        </property>
+        <property name="iceMoney" type="java.lang.Float">
+            <column name="icemoney" length="50" />
+        </property>
+        <property name="allMoney" type="java.lang.Float">
+            <column name="allmoney" length="50" />
+        </property>
+        <property name="creditMoney" type="java.lang.Float">
+            <column name="creditmoney" length="50" />
+        </property>
+        <property name="points" type="java.lang.Integer">
+            <column name="points" length="50" />
+        </property>
+        <property name="addLimit" type="java.lang.Integer">
+            <column name="addlimit" length="50" />
+        </property>
+        <property name="qq" type="java.lang.String">
+            <column name="qq" length="50" />
+        </property>
+        <property name="email" type="java.lang.String">
+            <column name="email" length="50" />
+        </property>
+        <property name="regFrom" type="java.lang.String">
+            <column name="regfrom" length="50" />
+        </property>
+        <property name="isdaili" type="java.lang.String">
+            <column name="isdaili" length="50" />
+        </property>
+        <property name="isOnline" type="java.lang.String">
+            <column name="isonline" length="50" />
+        </property>
+        <property name="lastLogIp" type="java.lang.String">
+            <column name="lastlogip" length="50" />
+        </property>
+        <property name="lastLogTime" type="java.util.Date">
+            <column name="lastlogtime" length="50" />
+        </property>
+        <property name="lastLogOut" type="java.util.Date">
+            <column name="lastlogout" length="50" />
+        </property>
+        <property name="logins" type="java.lang.Integer">
+            <column name="logins" length="50" />
+        </property>
+        <property name="addTime" type="java.util.Date">
+            <column name="addtime" length="50" />
+        </property>
+        <property name="fenhong" type="java.lang.Float">
+            <column name="fenhong" length="50" />
+        </property>
+        <property name="isLock" type="java.lang.String">
+            <column name="islock" length="50" />
+        </property>
+        <property name="bankName" type="java.lang.String">
+            <column name="bankname" length="50" />
+        </property>
+        <property name="bankArea" type="java.lang.String">
+            <column name="bankarea" length="50" />
+        </property>
+        <property name="bankAccount" type="java.lang.String">
+            <column name="bankaccount" length="50" />
+        </property>
+        <property name="bankNum" type="java.lang.String">
+            <column name="banknum" length="50" />
+        </property>
+        <property name="isBankLock" type="java.lang.String">
+            <column name="isbanklock" length="50" />
+        </property>
+        <property name="is17" type="java.lang.String">
+            <column name="is17" length="50" />
+        </property>
+        <property name="is18" type="java.lang.String">
+            <column name="is18" length="50" />
+        </property>
+        <property name="is19" type="java.lang.String">
+            <column name="is19" length="50" />
+        </property>
+        <property name="iszy" type="java.lang.String">
+            <column name="iszy" length="50" />
+        </property>
+        <property name="webSite" type="java.lang.String">
+            <column name="website" length="50" />
+        </property>
+        <property name="sjfy" type="java.lang.String">
+            <column name="sjfy" length="50" />
+        </property>
+        <property name="ip" type="java.lang.String">
+            <column name="ip" length="50" />
+        </property>
+        <property name="jdnote" type="java.lang.String">
+            <column name="jdnote" length="50" />
+        </property>
+        <property name="djnote" type="java.lang.String">
+            <column name="djnote" length="50" />
+        </property>
+        <property name="ifopenlhc" type="java.lang.String">
+            <column name="ifopenlhc" length="50" />
+        </property>
+        <property name="orderLock" type="java.lang.String">
+            <column name="orderlock" length="50" />
+        </property>
+        <property name="ifUpdatepwd" type="java.lang.String">
+            <column name="ifupdatepwd" length="50" />
+        </property>
+        <property name="ifUpdatePwdDisplay" type="java.lang.String">
+            <column name="ifupdatepwddisplay" length="50" />
+        </property>
+        <property name="ifEncode" type="java.lang.String">
+            <column name="ifencode" length="50" />
+        </property>
+        <property name="activityMoney" type="java.lang.Float">
+            <column name="activitymoney" length="50" />
+        </property>
+        <property name="bankBrand" type="java.lang.String">
+            <column name="bankbrand" length="50" />
+        </property>
+	</class>
+</hibernate-mapping>
