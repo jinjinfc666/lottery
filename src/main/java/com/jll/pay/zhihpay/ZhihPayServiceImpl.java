@@ -1,5 +1,6 @@
 package com.jll.pay.zhihpay;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -15,6 +16,9 @@ import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
@@ -24,10 +28,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jll.common.constants.Constants;
 import com.jll.common.constants.Message;
 import com.jll.common.http.HttpRemoteStub;
@@ -35,7 +39,7 @@ import com.jll.common.utils.RSAUtils;
 import com.jll.entity.MoneyInInfo;
 import com.jll.entity.TbBankback;
 import com.jll.entity.TbUsers;
-import com.jll.entity.display.CaiPayNotices;
+import com.jll.entity.display.ZhihPayNotices;
 import com.jll.pay.PaymentDao;
 import com.jll.pay.order.DepositOrderDao;
 import com.jll.sys.config.ReceiverBankCardDao;
@@ -54,7 +58,7 @@ public class ZhihPayServiceImpl implements ZhihPayService
 	
 	//private final String FAILED_CODE_ONLINE_PAY = "1";
 	
-	private final String SUCCESS_CODE = "1";
+	private final String SUCCESS_CODE = "SUCCESS";
 	
 	@Resource
 	ZhihPayDao tlCloudDao;
@@ -83,6 +87,9 @@ public class ZhihPayServiceImpl implements ZhihPayService
 	@Value("${cons.versionId}")
 	private String versionId;
 		
+	@Value("${cons.versionId.onlinebank}")
+	private String onlineBankVersionId;
+	
 	@Value("${cons.signType}")
 	private String signType;
 	
@@ -165,7 +172,7 @@ public class ZhihPayServiceImpl implements ZhihPayService
 	
 	@Override
 	public boolean isAuthorized(String ip) {
-		String roleName = "cai_pay_api";
+		String roleName = "zhih_pay_api";
 		long count = tlCloudDao.queryWhiteListCount(ip, roleName);
 		
 		return count == 0?false:true;
@@ -192,7 +199,7 @@ public class ZhihPayServiceImpl implements ZhihPayService
 		String payMode = (String)params.get("rechargeType");
 		float amount = (Float)params.get("amount");
 		String comment = (String)params.get("comment");
-		String payModeDesc = Constants.CAI_PAY_MODE.getDescByCode(payMode);
+		String payModeDesc = Constants.ZHIH_PAY_MODE.getDescByCode(payMode);
 		if(params.get("createTime") == null) {
 			params.put("createTime", new Date());
 		}
@@ -212,8 +219,9 @@ public class ZhihPayServiceImpl implements ZhihPayService
 	}
 	
 	private boolean isResponseSuccess(Map<String, Object> response) {
+		Map<String, String> resMap = new HashMap<>();
 		if(response.size() == 0) {
-			logger.debug("Can't read response from the cai-pay server!!!");
+			logger.debug("Can't read response from the zhih-pay server!!!");
 			return false;
 		}
 		
@@ -225,37 +233,66 @@ public class ZhihPayServiceImpl implements ZhihPayService
 			
 			logger.debug("the response is ::: " + (body == null?"":body));
 			
+			ByteArrayInputStream bis = null;
 			if(body != null && body.length() > 0) {
-				ObjectMapper mapper = new ObjectMapper();
 				try {
-					JsonNode node = mapper.readTree(body.getBytes("UTF-8"));
-					if(node == null) {
+					SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+					bis = new ByteArrayInputStream(body.getBytes("utf-8"));
+					saxParser.parse(bis, new DefaultHandler() {
+						private String key = null;
+						private String val = null;
+						public void startElement (String uri, String localName,
+	                              String qName, Attributes attributes)
+					        throws SAXException
+					    {
+							key = qName;
+							val = null;
+					    }
+						
+						public void characters (char ch[], int start, int length)
+						        throws SAXException
+						{
+							if(val != null) {
+								val = val + new String(ch, start, length);								
+							}else {
+								val = new String(ch, start, length);
+							}
+						}
+						
+						public void endElement (String uri, String localName, String qName)
+						        throws SAXException
+						{
+							resMap.put(key, val);
+						}
+					});
+					
+					if(resMap.size() == 0) {
 						logger.debug("can't read the response!!!");
 						return false;
 					}
 					
-					node = node.get("retCode");
-					if(node == null) {
+					String respCode = resMap.get("resp_code");
+					if(respCode == null) {
 						logger.debug("retCode is null");
 						return false;
 					}
 					
-					String code = node.asText();
-					if(code == null 
-							|| code.length() == 0) {
-						logger.debug("retCode value is null");
-						return false;
-					}
 					
-					logger.debug("retCode value is :::" + code);
-					if(code.equals(SUCCESS_CODE)) {
+					if(respCode.equals(SUCCESS_CODE)) {
 						return true;
 					}
 					
 					return false;
-				} catch (IOException e) {
+				} catch (IOException | ParserConfigurationException | SAXException e) {
 					e.printStackTrace();
 					return false;
+				}finally {
+					if(bis != null) {
+						try {
+							bis.close();
+						} catch (IOException e) {
+						}
+					}
 				}
 			}
 		}
@@ -290,7 +327,8 @@ public class ZhihPayServiceImpl implements ZhihPayService
 		pushParams.put("service_type", (String)params.get("rechargeType"));
 		pushParams.put("notify_url", params.get("asynNotifyURL"));
 		pushParams.put("interface_version", versionId);
-		pushParams.put("client_ip", params.get("reqIP"));
+		//pushParams.put("client_ip", params.get("reqIP"));
+		pushParams.put("client_ip", "121.96.59.56");
 		pushParams.put("sign_type", signType);
 		pushParams.put("order_no", String.valueOf(depositOrder.getRecordID()));
 		pushParams.put("order_time", params.get("createTime"));
@@ -312,7 +350,7 @@ public class ZhihPayServiceImpl implements ZhihPayService
 			}else if(valObj.getClass().getName().equals("java.lang.Boolean")) {
 				v = ((Boolean) valObj).toString();
 			}
-			if (StringUtils.isNotEmpty(v) && !"sign".equals(key)) {
+			if (StringUtils.isNotEmpty(v) && !"sign".equals(key) && !"sign_type".equals(key)) {
 				buffer.append(key + "=" + v + "&");
 			}
 		}
@@ -330,64 +368,69 @@ public class ZhihPayServiceImpl implements ZhihPayService
 			return null;
 		}
 		
-		pushParams.put("signData", sign);
+		pushParams.put("sign", sign);
 		return pushParams;
 	}
 
 	private SortedMap<String, Object> produceParamsOfOnlinePay(Map<String, Object> params){
-		DecimalFormat numFormat = new DecimalFormat("##0");
+		DecimalFormat numFormat = new DecimalFormat("##0.00");
 		MoneyInInfo depositOrder = (MoneyInInfo)params.get("depositOrder");
 		SortedMap<String, Object> pushParams = new TreeMap<>();
-		/*Merchant merchant = queryCurrMerchant((String)params.get("rechargeType"));
+		StringBuffer buffer = new StringBuffer();
 		
-		if(merchant == null) {
-			return null;
-		}*/
-		pushParams.put("versionId", versionId);
-		pushParams.put("orderAmount", numFormat.format(((Float)params.get("amount"))*100));
-		pushParams.put("orderDate", params.get("createTime"));
-		//pushParams.put("currency", currency);
-		if(params.get("accNoType") != null) {
-			pushParams.put("accNoType", params.get("accNoType"));
+		pushParams.put("merchant_code", merchantMerId);
+		pushParams.put("service_type", (String)params.get("rechargeType"));
+		pushParams.put("notify_url", params.get("asynNotifyURL"));
+		//pushParams.put("notify_url", "zhmyb.top");
+		pushParams.put("interface_version", onlineBankVersionId);
+		//pushParams.put("client_ip", params.get("reqIP"));
+		//pushParams.put("client_ip", "121.96.59.56");
+		pushParams.put("client_ip_check", 0);
+		pushParams.put("sign_type", signType);
+		pushParams.put("order_no", String.valueOf(depositOrder.getRecordID()));
+		pushParams.put("order_time", params.get("createTime"));
+		pushParams.put("order_amount", numFormat.format(params.get("amount")));
+		pushParams.put("product_name", "lottery");
+		pushParams.put("redo_flag", 1);
+		pushParams.put("return_url", "zhmyb.top");
+		Iterator<String> keys = pushParams.keySet().iterator();
+		while(keys.hasNext()) {
+			String key = keys.next();
+			Object valObj = pushParams.get(key);
+			String v = "";
+			if(valObj == null) {
+				continue;
+			}
+			if(valObj.getClass().getName().equals("java.lang.String")) {
+				v = (String)valObj;
+			}else if(valObj.getClass().getName().equals("java.lang.Integer")) {
+				v = String.valueOf(((Integer)valObj));
+			}else if(valObj.getClass().getName().equals("java.lang.Float")) {
+				v = String.valueOf(((Float) valObj));
+			}else if(valObj.getClass().getName().equals("java.lang.Long")) {
+				v = String.valueOf(((Long) valObj));
+			}else if(valObj.getClass().getName().equals("java.lang.Boolean")) {
+				v = ((Boolean) valObj).toString();
+			}
+			if (StringUtils.isNotEmpty(v) && !"sign".equals(key) && !"sign_type".equals(key)) {
+				buffer.append(key + "=" + v + "&");
+			}
 		}
-		pushParams.put("accountType", params.get("accountType"));
-		//pushParams.put("transType", transType);
-		pushParams.put("asynNotifyUrl", params.get("asynNotifyURL"));
-		pushParams.put("synNotifyUrl", params.get("synNotifyURL"));
-		if(params.get("bankCardNo") != null) {
-			pushParams.put("bankCardNo", (String)params.get("bankCardNo"));
+		
+		if(buffer.toString().endsWith("&")) {
+			buffer.deleteCharAt(buffer.length()-1);
 		}
-		if(params.get("userName") != null) {
-			pushParams.put("userName", (String)params.get("userName"));
+		String sign = null;
+		try {
+			sign = RSAUtils.signByPrivateKey(buffer.toString(), merchantKey);
+		} catch (Exception e) {
+			
 		}
-		if(params.get("phone") != null) {
-			pushParams.put("phone", (String)params.get("phone"));
-		}
-		if(params.get("idNo") != null) {
-			pushParams.put("idNo", (String)params.get("idNo"));
-		}
-		if(params.get("expireDate") != null) {
-			pushParams.put("expireDate", (String)params.get("expireDate"));
-		}
-		if(params.get("cvn2") != null) {
-			pushParams.put("cvn2", (String)params.get("cvn2"));
-		}
-		pushParams.put("signType", signType);
-		//pushParams.put("merId", merchant.getMerId());
-		pushParams.put("prdOrdNo", String.valueOf(depositOrder.getRecordID()));
-		pushParams.put("payMode", (String)params.get("rechargeType"));
-		pushParams.put("tranChannel", (String)params.get("tranChannel"));
-		//pushParams.put("receivableType", merchant.getReceivableType());
-		pushParams.put("prdAmt", numFormat.format(1));
-		pushParams.put("prdName", "lottery");
-		pushParams.put("prdDesc", "lottery");
-		pushParams.put("pnum", "1");
-		/*String sign = Signature.createSign(pushParams, merchant.getKey());
 		if(sign == null || sign.length() == 0) {
 			return null;
-		}*/
+		}
 		
-		//pushParams.put("signData", sign);
+		pushParams.put("sign", sign);
 		return pushParams;
 	}
 	
@@ -434,7 +477,7 @@ public class ZhihPayServiceImpl implements ZhihPayService
 			 String qrcode = null;
 			 String qrCodeKey = "qrcode";
 			 String jsonStr = (String)response.get("responseBody");
-			 qrcode = readJSON(qrCodeKey, jsonStr);
+			 qrcode = readQrcode(qrCodeKey, jsonStr);
 			 
 			 params.put("qrcode", qrcode);
 		 	return String.valueOf(Message.status.SUCCESS.getCode());
@@ -447,25 +490,72 @@ public class ZhihPayServiceImpl implements ZhihPayService
 	}
 
 
-	private String readJSON(String qrCodeKey, String jsonStr) {
-		ObjectMapper mapper = new ObjectMapper();
-		String qrcode = null;
-		 try {
-			 JsonNode node = mapper.readTree(jsonStr);
-			 qrcode = node.findValue(qrCodeKey).asText();
-			 //
-		} catch (JsonProcessingException e) {
-		} catch (IOException e) {                    			
+	private String readQrcode(String qrCodeKey, String xmlSeg) {
+		Map<String, String> resMap = new HashMap<>();
+						
+		ByteArrayInputStream bis = null;
+		if(xmlSeg != null && xmlSeg.length() > 0) {
+			try {
+				SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+				bis = new ByteArrayInputStream(xmlSeg.getBytes("utf-8"));
+				saxParser.parse(bis, new DefaultHandler() {
+					private String key = null;
+					private String val = null;
+					public void startElement (String uri, String localName,
+                              String qName, Attributes attributes)
+				        throws SAXException
+				    {
+						key = qName;
+						val = null;
+				    }
+					
+					public void characters (char ch[], int start, int length)
+					        throws SAXException
+					{
+						if(val != null) {
+							val = val + new String(ch, start, length);								
+						}else {
+							val = new String(ch, start, length);
+						}
+					}
+					
+					public void endElement (String uri, String localName, String qName)
+					        throws SAXException
+					{
+						resMap.put(key, val);
+					}
+				});
+				
+				if(resMap.size() == 0) {
+					logger.debug("can't read the response!!!");
+					return null;
+				}
+				
+				String qrCode = resMap.get(qrCodeKey);
+				
+				return qrCode;
+			} catch (IOException | ParserConfigurationException | SAXException e) {
+				e.printStackTrace();
+				return null;
+			}finally {
+				if(bis != null) {
+					try {
+						bis.close();
+					} catch (IOException e) {
+					}
+				}
+			}			
 		}
-		return qrcode;
+		return null;	
+		
 	}
 
 
 	@Override
 	public String processOnlineBankPay(Map<String, Object> params) {
 		Date createTime = new Date();
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-		URI url = null;
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		//URI url = null;
 		boolean isSuccess = true;
 		SortedMap<String, Object> pushParams = new TreeMap<>();
 		Map<String, String> reqHeaders = new HashMap<>();
@@ -482,25 +572,35 @@ public class ZhihPayServiceImpl implements ZhihPayService
 		String reqHost = (String)params.get("reqHost");
 		String reqContext = (String)params.get("reqContext");
 		params.put("asynNotifyURL", onlineBankPayAsynNotifyUrl.replace("{host}", reqHost).replace("{context}", reqContext));
-		//params.put("synNotifyURL", onlineBankPaysynNotifyUrl.replace("{host}", reqHost).replace("{context}", reqContext));
 		
 		pushParams = produceParamsOfOnlinePay(params);
 		if(pushParams == null || pushParams.size() == 0) {
 			return Message.Error.ERROR_PAYMENT_CAIPAY_FAILED_SIGNATURE_PARAMS.getCode();
 		}
-		 try {
-		 	url = new URI(apiServer + apiOnLineBankPay);
+		
+		params.clear();
+		Iterator<String> ite = pushParams.keySet().iterator();
+		while(ite.hasNext()) {
+			String key = ite.next();
+			Object val = pushParams.get(key);
+			
+			params.put(key, val);
+		}
+		
+		 /*try {
+		 	url = new URI(apiOnLineBankPay);
 		 } catch (URISyntaxException e) {
 		 	return Message.Error.ERROR_PAYMENT_CAIPAY_FAILED_CANCEL_ORDER.getCode();
 		 }
 
 		 Map<String, Object> response = HttpRemoteStub.synPost(url, reqHeaders, pushParams);
-		    
+		 
+		 logger.debug("response from server :: " + (response.get("responseBody") == null ?"":(String)response.get("responseBody")));
 		 isSuccess = isOnlineBankResponseSuccess(response);
 		 
 		 String redirect = (String)response.get("responseBody");
 		 
-		 params.put("redirect", redirect);
+		 params.put("redirect", redirect);*/
 		 
 		 depositOrder.setOrderNumber(String.valueOf(depositOrder.getRecordID()));
 		 if(isSuccess) {
@@ -551,33 +651,65 @@ public class ZhihPayServiceImpl implements ZhihPayService
 
 
 	@Override
-	public boolean isNoticesValid(CaiPayNotices notices, int noticeType) {
+	public boolean isNoticesValid(ZhihPayNotices notices, int noticeType) {
 		String sign = null;
 		SortedMap<String, Object> pushParams = new TreeMap<>();
-		pushParams.put("versionId", notices.getVersionId());
-		pushParams.put("orderAmount", notices.getOrderAmount());
-		pushParams.put("asynNotifyUrl", notices.getAsynNotifyUrl());
-		pushParams.put("synNotifyUrl", notices.getSynNotifyUrl());
-		pushParams.put("signType", notices.getSignType());
-		pushParams.put("merId", notices.getMerId());
-		pushParams.put("orderStatus", notices.getOrderStatus());
-		pushParams.put("payId", notices.getPayId());
-		pushParams.put("payTime", notices.getPayTime());
-		pushParams.put("prdOrdNo", notices.getPrdOrdNo());
-		pushParams.put("transType", notices.getTransType());
+		StringBuffer buffer = new StringBuffer();
+		pushParams.put("bank_seq_no", notices.getBank_seq_no());
+		pushParams.put("extra_return_param", notices.getExtra_return_param());
+		pushParams.put("interface_version", notices.getInterface_version());
+		pushParams.put("merchant_code", notices.getMerchant_code());
+		pushParams.put("notify_id", notices.getNotify_id());
+		pushParams.put("notify_type", notices.getNotify_type());
+		pushParams.put("order_amount", notices.getOrder_amount());
+		pushParams.put("order_no", notices.getOrder_no());
+		pushParams.put("order_time", notices.getOrder_time());
+		pushParams.put("orginal_money", notices.getOrginal_money());
+		pushParams.put("trade_no", notices.getTrade_no());
+		pushParams.put("trade_status", notices.getTrade_status());
+		pushParams.put("trade_time", notices.getTrade_time());
 		
-		MoneyInInfo depositOrder = depositOrderDao.queryDepositOrderById(Integer.parseInt(notices.getPrdOrdNo()));
-		String depositChannel = depositOrder.getRechargeType();
-		String channelCode = Constants.CAI_PAY_MODE.getCodeByDesc(depositChannel);
-		/*Merchant merchant = queryCurrMerchant(channelCode);
-		sign = Signature.createSign(pushParams, merchant.getKey());
+		Iterator<String> keys = pushParams.keySet().iterator();
+		while(keys.hasNext()) {
+			String key = keys.next();
+			Object valObj = pushParams.get(key);
+			String v = "";
+			if(valObj == null) {
+				continue;
+			}
+			if(valObj.getClass().getName().equals("java.lang.String")) {
+				v = (String)valObj;
+			}else if(valObj.getClass().getName().equals("java.lang.Integer")) {
+				v = String.valueOf(((Integer)valObj));
+			}else if(valObj.getClass().getName().equals("java.lang.Float")) {
+				v = String.valueOf(((Float) valObj));
+			}else if(valObj.getClass().getName().equals("java.lang.Long")) {
+				v = String.valueOf(((Long) valObj));
+			}else if(valObj.getClass().getName().equals("java.lang.Boolean")) {
+				v = ((Boolean) valObj).toString();
+			}
+			if (StringUtils.isNotEmpty(v) && !"sign".equals(key) && !"sign_type".equals(key)) {
+				buffer.append(key + "=" + v + "&");
+			}
+		}
+		
+		if(buffer.toString().endsWith("&")) {
+			buffer.deleteCharAt(buffer.length()-1);
+		}
+		
+		try {
+			sign = RSAUtils.signByPrivateKey(buffer.toString(), merchantKey);
+		} catch (Exception e) {
+			
+		}		
+		
 		if(sign == null || sign.length() == 0
-				|| notices.getSignData() == null
-				|| notices.getSignData().length() == 0) {
+				|| notices.getSign() == null
+				|| notices.getSign().length() == 0) {
 			return false;
-		}*/
+		}
 		
-		return sign.equals(notices.getSignData());
+		return sign.equals(notices.getSign());
 	}
 
 
@@ -605,7 +737,7 @@ public class ZhihPayServiceImpl implements ZhihPayService
 		depositRecord.setBackType("存款");
 		depositRecord.setBackTypeText("系统充值");
 		//depositRecord.setBankUser(bankUser);
-		depositRecord.setFollows("网银充值成功");
+		depositRecord.setFollows(depositOrder.getRechargeType()+ "充值成功");
 		//depositRecord.setId(id);
 		depositRecord.setIfAutoTransfer(0);
 		depositRecord.setIfDeal(0);
@@ -626,57 +758,22 @@ public class ZhihPayServiceImpl implements ZhihPayService
 		
 		return String.valueOf(Message.status.SUCCESS.getCode());
 	}
-	
-	/*private Merchant queryCurrMerchant(String payMode) {
-		for(Merchant mer : merchants) {
-			if(mer.getPayModes().contains(payMode)) {
-				return mer;
-			}
-		}
-		return null;
-	}*/
-	
-	/*class Merchant{
-		private String merId;
+
+	@Override
+	public boolean isOrderSuccess(ZhihPayNotices notices) {
+		String status = notices.getTrade_status();
+		return "SUCCESS".equals(status);
+	}
+
+	@Override
+	public boolean isOrderNotified(ZhihPayNotices notices) {
+		String orderId = notices.getOrder_no();
+		MoneyInInfo depositOrder = depositOrderDao.queryDepositOrderById(Integer.parseInt(orderId));
 		
-		private String key;
-		
-		private List<String> payModes;
-		
-		private String receivableType;
-
-		public String getMerId() {
-			return merId;
-		}
-
-		public void setMerId(String merId) {
-			this.merId = merId;
-		}
-
-		public String getKey() {
-			return key;
-		}
-
-		public void setKey(String key) {
-			this.key = key;
-		}
-
-		public List<String> getPayModes() {
-			return payModes;
-		}
-
-		public void setPayModes(List<String> payModes) {
-			this.payModes = payModes;
-		}
-
-		public String getReceivableType() {
-			return receivableType;
-		}
-
-		public void setReceivableType(String receivableType) {
-			this.receivableType = receivableType;
+		if(depositOrder.getStatus() == 1) {
+			return true;
 		}
 		
-		
-	}*/
+		return false;
+	}
 }

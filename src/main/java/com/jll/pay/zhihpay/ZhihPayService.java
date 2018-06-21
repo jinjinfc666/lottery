@@ -2,7 +2,7 @@ package com.jll.pay.zhihpay;
 
 import java.util.Map;
 
-import com.jll.entity.display.CaiPayNotices;
+import com.jll.entity.display.ZhihPayNotices;
 import com.jll.pay.BasicPaymentService;
 
 public interface ZhihPayService extends BasicPaymentService
@@ -43,7 +43,7 @@ public interface ZhihPayService extends BasicPaymentService
 
 	boolean isValid(Map<String, Object> params);
 	
-	boolean isNoticesValid(CaiPayNotices notices, int noticeType);	
+	boolean isNoticesValid(ZhihPayNotices notices, int noticeType);	
 	
 	/**
 	 * process the order that the money already in bank account.
@@ -52,4 +52,10 @@ public interface ZhihPayService extends BasicPaymentService
 	 * @return
 	 */
 	String receiveDepositOrder(int orderId, float amount);
+
+
+	boolean isOrderSuccess(ZhihPayNotices notices);
+
+
+	boolean isOrderNotified(ZhihPayNotices notices);
 }
