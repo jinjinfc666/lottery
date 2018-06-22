@@ -392,7 +392,8 @@ public class ZhihPayServiceImpl implements ZhihPayService
 		pushParams.put("order_amount", numFormat.format(params.get("amount")));
 		pushParams.put("product_name", "lottery");
 		pushParams.put("redo_flag", 1);
-		pushParams.put("return_url", "zhmyb.top");
+		pushParams.put("return_url", "http://jll2019.com");
+		pushParams.put("input_charset", "UTF-8");
 		Iterator<String> keys = pushParams.keySet().iterator();
 		while(keys.hasNext()) {
 			String key = keys.next();
