@@ -99,10 +99,10 @@ public class ZhihPayServiceImpl implements ZhihPayService
 	@Value("${api.online_bank_pay.notify_url}")
 	private String onlineBankPayAsynNotifyUrl;	
 	
-	@Value("${merchant1.merId}")
+	@Value("${merchant.merId}")
 	private String merchantMerId;
 	
-	@Value("${merchant1.key}")
+	@Value("${merchant.key}")
 	private String merchantKey;
 	/*
 	@Value("${merchant1.payMode}")

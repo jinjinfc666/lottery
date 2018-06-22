@@ -4,7 +4,7 @@
 
 	<properties>
 		<!-- <property name="LOG_HOME">/home/gamepackage/tomcat_cock_service/logs</property> -->
-	   <property name="LOG_HOME">D://logs</property>
+	   <property name="LOG_HOME">D://dev//tomcat-8.5.30//logs</property>
 		<!--  <property name="LOG_HOME">/home/gamepackage/quartz_job/logs</property> -->
 
 	</properties>
@@ -22,7 +22,7 @@
 		</Console>
 
 		<!-- ROOT日志 -->
-		<!-- <RollingFile name="ROOT" fileName="${LOG_HOME}/ROOT.log"
+		<RollingFile name="ROOT" fileName="${LOG_HOME}/ROOT.log"
 			filePattern="${LOG_HOME}/log4j2/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i_ROOT.log.gz">
 			<PatternLayout
 				pattern="%d{yyyy-MM-dd HH:mm:ss} %-5level %class{36}[%L].%M - %msg%xEx%n" />
@@ -31,7 +31,7 @@
 				<SizeBasedTriggeringPolicy size="20 MB" />
 			</Policies>
 			<DefaultRolloverStrategy max="15" />
-		</RollingFile> -->
+		</RollingFile>
 		
 	</appenders>
 
@@ -45,6 +45,7 @@
 		
 		<logger name="com.jll" level="debug" additivity="false">
 			<AppenderRef ref="Console"/>
+			<AppenderRef ref="ROOT"/>
 		</logger>	
 	</loggers>
 </configuration>

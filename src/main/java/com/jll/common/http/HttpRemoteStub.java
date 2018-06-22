@@ -28,13 +28,17 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jll.pay.zhihpay.ZhihPayController;
 
 public class HttpRemoteStub {
+	private static Logger logger = Logger.getLogger(HttpRemoteStub.class);
+	
 	private final static int SOCKET_TIMEOUT = 10000;
 	
 	private final static int CONNECT_TIMEOUT = 10000;
@@ -223,6 +227,8 @@ public class HttpRemoteStub {
 			}else {
 				pair = new BasicNameValuePair(key, val.toString());
 			}
+			
+			logger.debug(key + "=" + pair.getValue());
 			pairs.add(pair);
 		}		
 		

@@ -1,6 +1,7 @@
 package com.jll.pay.caiPay;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -157,15 +158,20 @@ public class CaiPayController
 	    }
 		
 		String retCode = caiPayService.processOnlineBankPay(params);
-		
+		PrintWriter pWriter = null;
 		try {
-			response.getWriter().print((String)params.get("redirect"));
-			response.getWriter().flush();
+			pWriter = response.getWriter();
+			pWriter.print((String)params.get("redirect"));
+			pWriter.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally {
+			if(pWriter != null) {
+				pWriter.close();
+			}
 		}
-		data.put("redirect", params.get("redirect"));
+		/*data.put("redirect", params.get("redirect"));
 		ret.put("data", data);
 		
 		if(retCode.equals(String.valueOf(Message.status.SUCCESS.getCode()))) {
@@ -174,7 +180,7 @@ public class CaiPayController
 			ret.put(Message.KEY_STATUS, Message.status.FAILED.getCode());
 			ret.put(Message.KEY_ERROR_CODE, retCode);
 			ret.put(Message.KEY_ERROR_MES, Message.Error.getErrorByCode(retCode).getErrorMes());
-		}
+		}*/
 		
 		//return ret;
   } 

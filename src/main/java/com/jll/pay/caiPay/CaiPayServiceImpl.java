@@ -72,7 +72,7 @@ public class CaiPayServiceImpl implements CaiPayService
 	@Resource
 	UserDao userDao;
 		  
-	@Value("${api.server}")
+	@Value("${caifu.api.server}")
 	private String apiServer;
 	  
 	@Value("${api.scanQRPay}")
@@ -81,16 +81,16 @@ public class CaiPayServiceImpl implements CaiPayService
 	@Value("${api.onLineBankPay}")
 	private String apiOnLineBankPay;
 	  
-	@Value("${cons.versionId}")
+	@Value("${caifu.cons.versionId}")
 	private String versionId;
 	
-	@Value("${cons.currency}")
+	@Value("${caifu.cons.currency}")
 	private String currency;
 	
-	@Value("${cons.transType}")
+	@Value("${caifu.cons.transType}")
 	private String transType;
 	
-	@Value("${cons.signType}")
+	@Value("${caifu.cons.signType}")
 	private String signType;
   
 	/*@Value("${cons.receivableType}")
