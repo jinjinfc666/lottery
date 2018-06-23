@@ -385,7 +385,7 @@ public class ZhihPayServiceImpl implements ZhihPayService
 		pushParams.put("interface_version", onlineBankVersionId);
 		//pushParams.put("client_ip", params.get("reqIP"));
 		//pushParams.put("client_ip", "121.96.59.56");
-		pushParams.put("client_ip_check", 0);
+		//pushParams.put("client_ip_check", 0);
 		pushParams.put("sign_type", signType);
 		pushParams.put("order_no", String.valueOf(depositOrder.getRecordID()));
 		pushParams.put("order_time", params.get("createTime"));
@@ -430,6 +430,8 @@ public class ZhihPayServiceImpl implements ZhihPayService
 		if(sign == null || sign.length() == 0) {
 			return null;
 		}
+		
+		logger.debug("the signature items:" + buffer.toString() +"   signature::" + sign + "  length of signature:" + sign.length());
 		
 		pushParams.put("sign", sign);
 		return pushParams;

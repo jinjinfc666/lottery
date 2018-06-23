@@ -1,0 +1,324 @@
+﻿<!doctype html>
+<html lang="en" class="no-js">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="resource/css/easydropdown.css" />
+		<link rel="stylesheet" href="resource/css/slicy.css" />
+		<link rel="stylesheet" href="resource/css/style.css" />
+		
+		<link rel="stylesheet" type="text/css" href="Scripts/jquery-easyui-1.4.4/themes/black/easyui.css" />
+		<link rel="stylesheet" type="text/css" href="Scripts/jquery-easyui-1.4.4/themes/icon.css" />
+        <style>
+			.dropdown1 {
+				width: 188px;
+				height: 28px;
+				background-color: #d2ae7e;
+				border-radius: 8px;
+			}
+			.h_g_n_select {
+			    width: 240px;
+			        float: left;
+			}
+			.h_g_n_content {
+				z-index: 9;
+			    color: red;
+			    /* background: #00baa6; */
+			    
+				font-size: 16px;
+				position: relative;
+				display: inline-block;
+				float: left;
+				width: 98%;
+				height: 78px;
+				margin-bottom: -2px;
+				cursor: pointer;
+				text-align: center;
+				border-bottom: solid 2px transparent;
+			}
+			
+			.h_g_n_ico{
+				/* background-image: url(./images/hot-pt-hover.png); */
+				    height: 50px;
+			    background-repeat: no-repeat;
+			    background-position: center center;
+			}
+			
+			.h_g_n_select{
+				/* background-image: url(./images/hot-pt-hover.png); */
+			}
+			
+			input[type=checkbox], input[type=radio] {
+			    display: inline;
+			}
+			
+			.qr{
+				 margin: 40px 0px 30px 0px;
+			}
+			</style>
+			<script type="text/javascript" src="Scripts/jquery-easyui-1.4.4/jquery.min.js"></script>
+			<script type="text/javascript" src="Scripts/jquery-easyui-1.4.4/jquery.easyui.min.js"></script>
+			<script src="Scripts/jquery-easyui-1.4.4/locale/easyui-lang-zh_CN.js"></script>
+			<script src="Scripts/jquery.qrcode.min.js"></script>
+        <script type="text/javascript">
+	        function changeFrameHeight(){
+	            var ifm= document.getElementById("iframe");
+	            ifm.height=document.documentElement.clientHeight-56;
+	        }
+	        window.onresize=function(){ 
+	        	changeFrameHeight();
+	       	}
+	        $(function(){
+	        	changeFrameHeight();
+	        });
+	        $(document).ready(function () {
+	        	var parentUrl = window.location.href;
+	        	var userName = parentUrl.substring(parentUrl.indexOf("\?") + 1);
+	        	var domain = parseDomain();
+				if (typeof domain != 'undefined'
+						&& domain.length > 0) {
+					document.getElementById('iframe').src = domain + "/lottery/caipay.html?source=2&" + userName;
+				} else {
+					document.getElementById('iframe').src = "http://zhmyb.top/lottery/caipay.html?source=2&"+ userName;
+				}
+	    	});
+        </script>
+        <title>手工入账</title>
+    </head>
+    <body style="padding: 0; border: 0; margin: 0; height: auto;">
+        <header>
+            <input type="hidden" name="max_amount" id="max_amount" value="1" />
+			<input type="hidden" name="username" id="username" /> 
+			<input type="hidden" name="wechat_max_amount" id="wechat_max_amount" value="2000" />
+			<div class="top_up wrapper" style="background-color: #2e221e;min-height: 105px;">
+				<div class="title">账户充值</div>
+				<div class="hd">
+					<ul>
+						<li><a id="manualDeposit" href="##" target="_self"
+							style="color: red">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自动入账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>
+						<li><a id="handPay" name="handPay" href="##" target="_self"
+							style="color: red">微信/支付宝</a></li>
+						<li><a id="onlineBankPay" name="onlineBankPay" href="##"
+							target="_self" style="color: red">网银入账</a></li>
+						<li class='n1'><a id="tpPay" name="tpPay" href="##"
+							target="_self" style="color: red">第三方充值</a></li>
+					</ul>
+				</div>
+			</div>
+        </header>
+        <main>
+            <iframe id="iframe" width="100%" height="600" src=""  frameborder="0" scrolling="auto">
+            </iframe> 
+        </main>
+        <script type="text/javascript">
+		function parseUserName(url) {
+			var parentUrl = url;
+			var userName = "";
+			var usernameIndx = parentUrl.indexOf("username");
+			if (usernameIndx < 0) {
+				return "";
+			}
+			usernameIndxEnd = parentUrl.indexOf("&", usernameIndx);
+			if (usernameIndxEnd < 0) {
+				userName = parentUrl.substring(usernameIndx);
+			} else {
+				userName = parentUrl.substring(usernameIndx, usernameIndxEnd);
+			}
+
+			if (typeof userName == "undefined" || userName == "") {
+				return "";
+			}
+
+			userName = userName.split("=")[1];
+			if (typeof userName == "undefined" || userName == "") {
+				return "";
+			}
+			return userName;
+		}
+
+		var ret = setInterval("validAliPay()", 100);
+
+		var optionSize = 0;
+		var optionSizeNoChangeTimes = 0;
+		var userName = "";
+		function validAliPay() {
+			//var parentUrl = document.referrer;
+			var parentUrl = window.location.href;
+
+			userName = parseUserName(parentUrl);
+			/*var optionSize_curr = $("select[name='zfqd'] option").size();
+
+			if(optionSize_curr > optionSize){
+			    optionSize = optionSize_curr;
+			    optionSizeNoChangeTimes = 0;
+			}else if(optionSize_curr == optionSize){
+			    optionSizeNoChangeTimes++;
+			}
+			if(optionSize == 0 && optionSizeNoChangeTimes < 20){
+			    return;
+			}else if(optionSize == 0 && optionSizeNoChangeTimes >= 20){
+			    clearInterval(ret);
+			    return;
+			}else if(optionSize > 0 && optionSizeNoChangeTimes < 3){
+			    return;
+			}
+
+			if(userName != ""){
+			            //userName = userName.split("=")[1];
+
+			            var url = encodeURI("http://45.120.155.190:8080/chart/app/payment/depositTimes/"+userName);
+			            //alert(url);
+			            $.get(url, 
+			         function(data, status){
+			                    if(data.status == 1){
+			                        var depositTimes = data.depositTimes;
+			                        if(depositTimes < 3){                        
+			                            $("select[name='zfqd'] option").each(function(){
+			                                 if(this.value == 22){
+			                                     $(this).remove();
+			                                 }
+			                            });
+			                       }
+			                   }                           
+
+			             });    
+			}*/
+
+			var queryParams = parentUrl.substring(parentUrl.indexOf("\?") + 1);
+			changeUrl(queryParams);
+			clearInterval(ret);
+		}
+
+		function changeUrl(userName) {
+			$("#handPay")
+					.click(
+							function() {
+								var domain = parseDomain();
+								if (typeof domain != 'undefined'
+										&& domain.length > 0) {
+									this.href = domain
+											+ "/PC/BankList/Hand?source=0&"
+											+ userName;
+								} else {
+									this.href = "http://zhmyb.top/PC/BankList/Hand?source=0&"
+											+ userName;
+								}
+							});
+
+			$("#manualDeposit")
+					.on(
+							"click",
+							function() {
+								var domain = parseDomain();
+								if (typeof domain != 'undefined'
+										&& domain.length > 0) {
+									this.href = domain
+											+ "/PC/BankList/Index?source=1&"
+											+ userName;
+								} else {
+									this.href = "http://zhmyb.top/PC/BankList/Index?source=1&"
+											+ userName;
+								}
+
+							});
+
+			$("#onlineBankPay")
+					.on(
+							"click",
+							function() {
+								var domain = parseDomain();
+								if (typeof domain != 'undefined'
+										&& domain.length > 0) {
+									this.href = domain
+											+ "/lottery/online-bank.html?source=2&"
+											+ userName;
+								} else {
+									this.href = "http://zhmyb.top/lottery/online-bank.html?source=2&"
+											+ userName;
+								}
+							});
+			$("#tpPay")
+			.on(
+					"click",
+					function() {
+						var domain = parseDomain();
+						if (typeof domain != 'undefined'
+								&& domain.length > 0) {
+							document.getElementById('iframe').src = domain + "/lottery/caipay.html?source=2&" + userName;
+						} else {
+							document.getElementById('iframe').src = "http://zhmyb.top/lottery/caipay.html?source=2&"+ userName;
+						}
+					});
+// 			$("tr.tr1 td[name=payMode] input").on("click", function(){
+// 				var paymodeType = $(this).attr("data-paymode-type");
+// 				if(paymodeType == "0"){
+// 					$("tr[data-type=online_bank_input]").hide();
+// 					$("tr[data-type=scan_qr_wechat_input]").hide();
+// 					$("tr[data-type=scan_qr_input]").show();
+// 				}if(paymodeType == "0_1"){
+// 					$("tr[data-type=online_bank_input]").hide();
+// 					$("tr[data-type=scan_qr_wechat_input]").show();
+// 					$("tr[data-type=scan_qr_input]").hide();
+// 				}else if(paymodeType == "1"){					
+// 					$("tr[data-type=online_bank_input]").show();
+// 					$("tr[data-type=scan_qr_wechat_input]").hide();
+// 					$("tr[data-type=scan_qr_input]").hide();
+// 				}
+// 			});
+		}
+
+// 		function queryOnlineBankCard() {
+// 			var clickCount = parseInt($("#zfqd").attr("data-clickCount"));
+// 			if (clickCount == 0) {
+// 				var domain = parseDomain();
+// 				var url = ':8080/lottery/app/configuration/online/bankAccounts';
+// 				if (typeof domain != 'undefined' && domain.length > 0) {
+// 					url = domain + url;
+// 				} else {
+// 					url = 'http://45.120.155.190:8080/lottery/app/configuration/online/bankAccounts';
+// 				}
+// 				$.get(url, function(data) {
+// 					if (data.status == 1) {
+// 						jQuery("#zfqd").empty();
+
+// 						var onlineBankCards = data.data;
+// 						for (var i = 0; i < onlineBankCards.length; i++) {
+// 							$("#zfqd").append(
+// 									"<option value='"+onlineBankCards[i].remark+"'>"
+// 											+ onlineBankCards[i].bankName
+// 											+ "</option>");
+// 						}
+// 					}
+
+// 				});
+// 			}
+// 			clickCount += 1;
+// 			$("#zfqd").attr("data-clickCount", clickCount + "");
+// 		}
+
+		function parseDomain() {
+			var currURL = location.href;
+			var domain = '';
+
+			if (currURL.indexOf("http") >= 0) {
+				if (currURL.indexOf("/", currURL.indexOf("http") + 7) > 0) {
+					domain = currURL.substring(0, currURL.indexOf("/", currURL
+							.indexOf("http") + 7));
+				} else {
+					domain = currURL;
+				}
+
+			}
+
+			if (typeof domain == 'undefined' || domain.length == 0) {
+				return '';
+			}
+
+			if (domain.indexOf(":", 7) > 0) {
+				domain = domain.substring(0, domain.indexOf(":", 7));
+			}
+			return domain;
+		}
+	</script>
+    </body>
+</html>
