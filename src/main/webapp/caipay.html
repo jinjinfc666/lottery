@@ -369,7 +369,7 @@ input[type=checkbox], input[type=radio] {
 					accountType : accountType,
 					tranChannel : tranChannel,
 				}, function(data) {
-					console.log( eval(data)+"    "+data+"    "+$("[name='name']").val());
+					
 				});	
 			}
 
@@ -404,9 +404,6 @@ input[type=checkbox], input[type=radio] {
 		<input type="hidden" name="max_amount" id="max_amount" value="1" />
 		<input type="hidden" name="username" id="username" value="silence" /> 
 		<input type="hidden" name="wechat_max_amount" id="wechat_max_amount" value="2000" />
-		<div style="display: none;" id="container">
-		
-		</div>
 		<div class="top_up wrapper">
 			<div class="bd bank_info">
 				<table width="100%"  class="ui_table"  border="0"  cellspacing="1">

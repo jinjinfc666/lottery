@@ -239,6 +239,7 @@ input[type=checkbox], input[type=radio] {
 			$.messager.alert('错误', '当前页面地址错误！', 'Error');
 			return;
 		}
+
 		orderURL = domain + "" + orderURL;
         
 		if(typeof payMode == 'undefined' || payMode.length == 0){
@@ -263,6 +264,7 @@ input[type=checkbox], input[type=radio] {
 			$.messager.alert('提示', '请正确输入充值金额！', 'warning');
 			return;
 		}
+
 		//提交form到相应的地址
 		if (isvalide == "1") {
 			if (typeof userName != "undefined" && userName != "") {
@@ -431,6 +433,7 @@ input[type=checkbox], input[type=radio] {
 							<input type="text" id="order_amount" name="order_amount" class='txt txt1' />
 						</td>
 					</tr>
+					
 					<tr class='tr1' data-type="scan_qr_wechat_input"  style="display: none;">
 						<td width="197" align="center">充值金额：</td>
 						<td width="835" style="padding-left: 50px;">
@@ -446,12 +449,13 @@ input[type=checkbox], input[type=radio] {
 							</select>
 						</td>
 					</tr>
+					
 					<tr class='tr1' data-type="online_bank_input" style="display: none;">
 						<td width="197" align="center">充值金额：</td>
 						<td width="835">
 							<input type="text" id="order_amount" name="order_amount" class='txt txt1' />
 						</td>
-					</tr>		
+					</tr>				
 					<tr data-type="online_bank_input" style="display: none;">
 						<td colspan="2" align="left"><input type="button"
 							id="button_next" value="下一步" class='ui_smt next'
