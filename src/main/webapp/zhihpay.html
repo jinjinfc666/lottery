@@ -1,0 +1,658 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>手工入账</title>
+
+<link rel="stylesheet" type="text/css" href="resource/css/easydropdown.css" />
+<link rel="stylesheet" href="resource/css/slicy.css" />
+<link rel="stylesheet" href="resource/css/style.css" />
+
+<link rel="stylesheet" type="text/css" href="Scripts/jquery-easyui-1.4.4/themes/black/easyui.css" />
+<link rel="stylesheet" type="text/css" href="Scripts/jquery-easyui-1.4.4/themes/icon.css" />
+
+<style>
+.dropdown1 {
+	width: 188px;
+	height: 28px;
+	background-color: #d2ae7e;
+	border-radius: 8px;
+}
+.h_g_n_select {
+    width: 240px;
+        float: left;
+}
+.h_g_n_content {
+	z-index: 9;
+    color: red;
+    /* background: #00baa6; */
+    
+	font-size: 16px;
+	position: relative;
+	display: inline-block;
+	float: left;
+	width: 98%;
+	height: 50px;
+	cursor: pointer;
+	text-align: center;
+	border-bottom: solid 2px transparent;
+}
+
+.h_g_n_ico{
+	/* background-image: url(./images/hot-pt-hover.png); */
+	    height: 50px;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.h_g_n_select{
+	/* background-image: url(./images/hot-pt-hover.png); */
+}
+
+input[type=checkbox], input[type=radio] {
+    display: inline;
+}
+
+.qr{
+	 margin: 40px 0px 30px 0px;
+}
+
+.edit_menu{height: 30px;margin:1px 0px;}
+.div{
+	cursor: pointer;font-size:14px;color:red;float:left; width:100px;height:30px;line-height:28px; overflow:hidden;text-align:center;
+}
+</style>
+<script type="text/javascript" src="Scripts/jquery-easyui-1.4.4/jquery.min.js"></script>
+<script type="text/javascript" src="Scripts/jquery-easyui-1.4.4/jquery.easyui.min.js"></script>
+<script src="Scripts/jquery-easyui-1.4.4/locale/easyui-lang-zh_CN.js"></script>
+<script src="Scripts/jquery.qrcode.min.js"></script>
+
+<!--[if lt IE 9]>
+    <script src="js/html5.js"></script>
+    <![endif]-->
+<script>
+	function NextStep() {
+		var max_amount = $("#max_amount").val();
+		var je = $("#order_amount").val();
+		var wechatMaxAmount = $("#wechat_max_amount").val();
+		var isvalide = "0";
+		var selZfqd = $("#zfqd").val();
+		var selZfqdName = $("#zfqd").find("option:selected").text();
+		var payCardNum = $("#pay_card_num").val();
+		var payerName = $("#order_man").val();
+
+		var orderURL = "/lottery/app/tlCloud/orders";
+		var domain = parseDomain();
+
+		if (typeof domain == 'undefined' || domain.length == 0) {
+			$.messager.alert('错误', '当前页面地址错误！', 'Error');
+			return;
+		}
+
+		orderURL = domain + "" + orderURL;
+
+		if (je == "") {
+			$.messager.alert('提示', '请正确输入充值金额！', 'warning');
+			return;
+		}
+
+		if (!isNaN(je)) {
+			if (parseInt(je) < parseInt(max_amount)) {
+				$.messager.alert('提示', '充值金额不能少于' + max_amount + '元！',
+						'warning');
+				return;
+			}/*else if(selZfqd == 26 || selZfqd == 28){
+			                    if(parseInt(je) > parseInt(wechatMaxAmount)){
+			                        $.messager.alert('提示', '充值金额不能大于' + wechatMaxAmount + '元！', 'warning');
+			                        return;
+			                    }
+			                    isvalide = "1";
+			                }*/
+			else if (selZfqdName.indexOf('微信') > 0) {
+				if (parseInt(je) > parseInt(wechatMaxAmount)) {
+					$.messager.alert('提示', '充值金额不能大于' + wechatMaxAmount + '元！',
+							'warning');
+					return;
+				}
+				isvalide = "1";
+			} else {
+				//$('#button_next').attr('disabled', "true");
+				isvalide = "1";
+			}
+		} else {
+			$.messager.alert('提示', '请正确输入充值金额！', 'warning');
+			return;
+		}
+
+		//提交form到相应的地址
+		if (isvalide == "1") {
+			if (typeof userName != "undefined" && userName != "") {
+				$.post(orderURL, {
+					rechargeType : selZfqd,
+					amount : je,
+					userName : decodeURI(userName),
+					payCardNumber : payCardNum,
+					payerName : payerName
+				}, function(data) {
+					if (data.status == 1) {
+						$("#Form1").hide();
+						$("#Form2").show();
+
+						$("#bankname").html(data.data.bankName);
+						$("#banknum").html(data.data.bankNum);
+						$("#bankaccount").html(data.data.bankAccount);
+						$("#comment").html(data.data.comment);
+					} else {
+						$.messager.alert('错误', '操作失败！', 'Error');
+					}
+
+				});
+
+			}
+
+		}
+	}
+	
+	function scanPay() {
+		var payMode = $('input[name="payMode"]:checked').val();
+		var max_amount = $("#max_amount").val();
+		var je = $("tr[data-type=scan_qr_input] input[name=order_amount]").val();
+		//var wechatMaxAmount = $("#wechat_max_amount").val();
+		var isvalide = "0";
+		//var selZfqd = $("#zfqd").val();
+		//var selZfqdName = $("#zfqd").find("option:selected").text();
+		//var payCardNum = $("#pay_card_num").val();
+		//var payerName = $("#order_man").val();
+
+		var orderURL = "/lottery/app/zhihPay/scanPay";
+		var domain = parseDomain();
+		if (typeof domain == 'undefined' || domain.length == 0) {
+			$.messager.alert('错误', '当前页面地址错误！', 'Error');
+			return;
+		}
+
+		orderURL = domain + "" + orderURL;
+        
+		if(typeof payMode == 'undefined' || payMode.length == 0){
+			$.messager.alert('提示', '请选择充值方式！', 'warning');
+			return;
+		}
+		if (je == "") {
+			$.messager.alert('提示', '请正确输入充值金额！', 'warning');
+			return;
+		}
+
+		if (!isNaN(je)) {
+			if (parseInt(je) < parseInt(max_amount)) {
+				$.messager.alert('提示', '充值金额不能少于' + max_amount + '元！',
+						'warning');
+				return;
+			}else {
+				//$('#button_next').attr('disabled', "true");
+				isvalide = "1";
+			}
+		} else {
+			$.messager.alert('提示', '请正确输入充值金额！', 'warning');
+			return;
+		}
+
+		//提交form到相应的地址
+		if (isvalide == "1") {
+			if (typeof userName != "undefined" && userName != "") {
+				$.post(orderURL, {
+					serviceType : payMode,
+					orderAmount : je,
+					userName : decodeURI(userName)
+				}, function(data) {
+					if (data.status == 1) {
+						$("#Form1").hide();
+						$("#Form3").show();
+						$("#qr_code").qrcode({
+							render: "canvas", //table方式
+							width: 260, //宽度
+							height:260, //高度
+							correctLevel:0,
+							text: data.data.qrcode //任意内容
+						});
+					} else {
+						$.messager.alert('错误', '操作失败！', 'Error');
+					}
+
+				});
+
+			}
+
+		}
+	}
+	function wechatScanPay() {
+		var payMode = $('input[name="payMode"]:checked').val();
+		var max_amount = $("#max_amount").val();
+		var je = $("tr[data-type=scan_qr_wechat_input] select[name=order_amount]").find("option:selected").val();
+		
+		//var wechatMaxAmount = $("#wechat_max_amount").val();
+		var isvalide = "0";
+		var orderURL = "/lottery/app/zhihPay/scanPay";
+		var domain = parseDomain();
+
+		if (typeof domain == 'undefined' || domain.length == 0) {
+			$.messager.alert('错误', '当前页面地址错误！', 'Error');
+			return;
+		}
+		orderURL = domain + "" + orderURL;
+        
+		if(typeof payMode == 'undefined' || payMode.length == 0){
+			$.messager.alert('提示', '请选择充值方式！', 'warning');
+			return;
+		}
+		if (je == "") {
+			$.messager.alert('提示', '请正确输入充值金额！', 'warning');
+			return;
+		}
+
+		if (!isNaN(je)) {
+			if (parseInt(je) < parseInt(max_amount)) {
+				$.messager.alert('提示', '充值金额不能少于' + max_amount + '元！',
+						'warning');
+				return;
+			}else {
+				//$('#button_next').attr('disabled', "true");
+				isvalide = "1";
+			}
+		} else {
+			$.messager.alert('提示', '请正确输入充值金额！', 'warning');
+			return;
+		}
+		//提交form到相应的地址
+		if (isvalide == "1") {
+			if (typeof userName != "undefined" && userName != "") {
+				$.post(orderURL, {
+					serviceType : payMode,
+					orderAmount : je,
+					userName : decodeURI(userName)
+				}, function(data) {
+					if (data.status == 1) {
+						$("#Form1").hide();
+						$("#Form3").show();
+						$('#qr_code').qrcode(data.data.qrcode)
+					} else {
+						$.messager.alert('错误', '操作失败！', 'Error');
+					}
+
+				});
+
+			}
+
+		}
+	}
+	
+	function onlineBankPay() {
+		var payMode = $('input[name="payMode"]:checked').val();
+		var max_amount = $("#max_amount").val();
+		var je = $("tr[data-type=online_bank_input] input[name=order_amount]").val();
+		//var wechatMaxAmount = $("#wechat_max_amount").val();
+		var isvalide = "0";
+		var orderURL = "/lottery/app/zhihPay/onlineBankPay";
+		var domain = parseDomain();
+		if (typeof domain == 'undefined' || domain.length == 0) {
+			$.messager.alert('错误', '当前页面地址错误！', 'Error');
+			return;
+		}
+		orderURL = domain + "" + orderURL;
+
+		if(typeof payMode == 'undefined' || payMode.length == 0){
+			$.messager.alert('提示', '请选择充值方式！', 'warning');
+			return;
+		}
+		
+		if (je == "") {
+			$.messager.alert('提示', '请正确输入充值金额！', 'warning');
+			return;
+		}
+
+		if (!isNaN(je)) {
+			if (parseInt(je) < parseInt(max_amount)) {
+				$.messager.alert('提示', '充值金额不能少于' + max_amount + '元！',
+						'warning');
+				return;
+			}/* 
+			else if (selZfqdName.indexOf('微信') > 0) {
+				if (parseInt(je) > parseInt(wechatMaxAmount)) {
+					$.messager.alert('提示', '充值金额不能大于' + wechatMaxAmount + '元！',
+							'warning');
+					return;
+				}
+				isvalide = "1";
+			}  */else {
+				//$('#button_next').attr('disabled', "true");
+				isvalide = "1";
+			}
+		} else {
+			$.messager.alert('提示', '请正确输入充值金额！', 'warning');
+			return;
+		}
+		//提交form到相应的地址
+		if (isvalide == "1") {
+			if (typeof userName != "undefined" && userName != "") {
+				$.post(orderURL, {
+					orderAmount : je,
+					userName : decodeURI(userName)
+				}, function(data) {
+					if (data.status == 1) {
+						$("#sign").attr("value",data.data.sign)
+						$("#merchant_code").attr("value",data.data.merchant_code);
+						$("#service_type").attr("value",data.data.service_type);
+						$("#interface_version").attr("value",data.data.interface_version);
+						$("#input_charset").attr("value",data.data.input_charset);
+						$("#notify_url").attr("value",data.data.notify_url);
+						$("#sign_type").attr("value",data.data.sign_type);
+						$("#order_no").attr("value",data.data.order_no);
+						$("#order_time").attr("value",data.data.order_time);
+						$("#order_amount").attr("value",data.data.order_amount);
+						$("#product_name").attr("value",data.data.product_name);
+						$("#return_url").attr("value",data.data.return_url);
+						$("#bank_code").attr("value",data.data.bank_code);
+						$("#redo_flag").attr("value",data.data.redo_flag);
+						$("#pay_type").attr("value",data.data.pay_type);
+						document.getElementById("Form1").submit();
+					} else {
+						$.messager.alert('错误', '操作失败！', 'Error');
+					}
+				});		
+			}
+
+		}
+	}
+	function changeBorder(idName){
+		var parentUrl = window.location.href;
+		var userName = parseUserName(parentUrl);
+		if(idName=="div1"){
+			var domain = parseDomain();
+			if (typeof domain != 'undefined'
+					&& domain.length > 0) {
+				window.parent.document.getElementById("iframe").src = domain + "/lottery/caipay.html?source=2&username=" + userName;
+			} else {
+				window.parent.document.getElementById("iframe").src  = "http://zhmyb.top/lottery/caipay.html?source=2&username="+ userName;
+			}
+		}
+	}
+</script>
+
+</head>
+
+<body style="padding: 0; border: 0; margin: 0; height: auto">
+	<div style="width:1040px;margin: auto;background-color: #2e221e;">
+		<div class="edit_menu">
+			<div id="div1" class="div" onclick="changeBorder('div1')">彩  付</div>
+			<div id="div2" class="div" style="border-bottom: 1px solid red;" onclick="changeBorder('div2')">智慧付</div>
+		</div>
+	</div>
+	<form id="Form1" method="post" action="https://pay.zhihfpay.com/gateway?input_charset=UTF-8" target="_blank" >
+		<input type="hidden" name="max_amount" id="max_amount" value="1" />
+		<input type="hidden" name="username" id="username" /> 
+		<input type="hidden" name="wechat_max_amount" id="wechat_max_amount" value="2000" />
+		<input type="hidden" name="sign" id="sign" />
+		<input type="hidden" name="merchant_code" id="merchant_code" />
+		<input type="hidden" name="service_type" id="service_type" />	
+		<input type="hidden" name="interface_version" id="interface_version" />			
+		<input type="hidden" name="input_charset" id="input_charset" />	
+		<input type="hidden" name="notify_url" id="notify_url" />
+		<input type="hidden" name="sign_type" id="sign_type" />		
+		<input type="hidden" name="order_no" id="order_no" />
+		<input type="hidden" name="order_time" id="order_time" />	
+		<input type="hidden" name="order_amount" id="order_amount" />
+		<input type="hidden" name="product_name" id="product_name" />	
+		<input type="hidden" name="return_url" id="return_url" />	
+		<input type="hidden" name="bank_code" id="bank_code" />	
+		<input type="hidden" name="redo_flag" id="redo_flag" />
+		<input type="hidden" name="pay_type"  id="pay_type" />
+		<div class="top_up wrapper">
+			<div class="bd bank_info">
+				<table width="100%"  class="ui_table"  border="0"  cellspacing="1">
+					<tr class='tr1'>
+						<td width="197" align="center">扫码充值：</td>
+						<td width="835" name="payMode"   style="padding-left: 50px;">
+							<input type="radio" name="payMode" value="00027" checked data-paymode-type="0">京东扫码
+						    <input type="radio" name="payMode" value="00045" data-paymode-type="0">银联扫码
+						    <input type="radio" name="payMode" value="00022" data-paymode-type="0_1">微信扫码 
+						    <input type="radio" name="payMode" value="00021" data-paymode-type="0">支付宝扫码
+						</td>
+					</tr>
+					<tr class='tr1'>
+						<td width="197" align="center">网银充值：</td>
+						<td width="835" name="payMode"   style="padding-left: 50px;">
+							<input type="radio" name="payMode" value="00020" data-paymode-type="1">银行卡
+							<input type="radio" name="payMode" value="00026" data-paymode-type="1">支付宝 h5
+						</td>
+					</tr>			
+					<tr class='tr1' data-type="scan_qr_input">
+						<td width="197" align="center">充值金额：</td>
+						<td width="835">
+							<input type="text" id="order_amount" name="order_amount" class='txt txt1' />
+						</td>
+					</tr>
+					<tr class='tr1' data-type="scan_qr_wechat_input"  style="display: none;">
+						<td width="197" align="center">充值金额：</td>
+						<td width="835" style="padding-left: 50px;">
+							<select id="order_amount" name="order_amount" class="dropdown1" style="width: 228px">
+								<option value="10">10元</option>
+								<option value="20" checked>20元</option>
+								<option value="30">30元</option>
+								<option value="50">50元</option>
+								<option value="100">100元</option>
+								<option value="200">200元</option>
+								<option value="300">300元</option>
+								<option value="500">500元</option>								
+							</select>
+						</td>
+					</tr>
+					<tr class='tr1' data-type="online_bank_input" style="display: none;">
+						<td width="197" align="center">充值金额：</td>
+						<td width="835">
+							<input type="text" id="order_amount" name="order_amount" class='txt txt1' />
+						</td>
+					</tr>		
+					<tr data-type="online_bank_input" style="display: none;">
+						<td colspan="2" align="left"><input type="button"
+							id="button_next" value="下一步" class='ui_smt next'
+							onclick="onlineBankPay();" /></td>
+					</tr>
+					<tr data-type="scan_qr_input">
+						<td colspan="2" align="left">
+							<input type="button" id="button_next" value="下一步" class='ui_smt next' onclick="scanPay()" />
+						</td>
+					</tr>
+					<tr data-type="scan_qr_wechat_input"  style="display: none;">
+						<td colspan="2" align="left">
+							<input type="button" id="button_next" value="下一步" class='ui_smt next' onclick="wechatScanPay()" />
+						</td>
+					</tr>
+				</table>
+				<div class="tips">
+					<p>
+						充值提示：支付宝，微信,网银。<br /> 1，充值账户会随时变更，充值时请在平台获取最新账户后进行充值。<br />
+						2，如果充值后出现没有到账的情况，请及时联系在线客服，并提供充值记录。<br /> 3，充值账户出现异常时，请选择其他充值方式。
+					</p>
+				</div>
+			</div>
+		</div>
+	</form>
+	<form id="Form3" method="post" action="/PC/BankList/Hand" target="_self" style="display: none;">
+        <input type="hidden" name="max_amount" id="max_amount" value="10" />
+        <div class="top_up wrapper">
+            <div class="title">
+                账户充值
+            </div>
+            <div class="hd">
+                <ul>
+                    <!--li><a href="/PC/BankList/Index" target="_self">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自动入账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li-->
+                    <!--li class='n1'><a id="handPay" name="handPay" href="##" target="_self">支付宝/微信手工入账</a></li-->
+                </ul>
+            </div>
+            <!--大额充值-->
+            <div class="bd h_g_n_content">
+                <div id="qr_code" class="qr"></div>
+                
+            </div>
+
+        </div>
+    </form>
+	<script type="text/javascript"
+		src="resource/js/jquery.easydropdown.min.js"></script>
+	<script type="text/javascript" src="resource/js/WdatePicker.js"></script>
+	<script type="text/javascript" src="resource/js/script.js"></script>
+
+	<script type="text/javascript">
+		function parseUserName(url) {
+			var parentUrl = url;
+			var userName = "";
+			var usernameIndx = parentUrl.indexOf("username");
+			if (usernameIndx < 0) {
+				return "";
+			}
+			usernameIndxEnd = parentUrl.indexOf("&", usernameIndx);
+			if (usernameIndxEnd < 0) {
+				userName = parentUrl.substring(usernameIndx);
+			} else {
+				userName = parentUrl.substring(usernameIndx, usernameIndxEnd);
+			}
+
+			if (typeof userName == "undefined" || userName == "") {
+				return "";
+			}
+
+			userName = userName.split("=")[1];
+			if (typeof userName == "undefined" || userName == "") {
+				return "";
+			}
+			return userName;
+		}
+
+		var ret = setInterval("validAliPay()", 100);
+
+		var optionSize = 0;
+		var optionSizeNoChangeTimes = 0;
+		var userName = "";
+		function validAliPay() {
+			//var parentUrl = document.referrer;
+			var parentUrl = window.location.href;
+			userName = parseUserName(parentUrl);
+			/*var optionSize_curr = $("select[name='zfqd'] option").size();
+
+			if(optionSize_curr > optionSize){
+			    optionSize = optionSize_curr;
+			    optionSizeNoChangeTimes = 0;
+			}else if(optionSize_curr == optionSize){
+			    optionSizeNoChangeTimes++;
+			}
+			if(optionSize == 0 && optionSizeNoChangeTimes < 20){
+			    return;
+			}else if(optionSize == 0 && optionSizeNoChangeTimes >= 20){
+			    clearInterval(ret);
+			    return;
+			}else if(optionSize > 0 && optionSizeNoChangeTimes < 3){
+			    return;
+			}
+
+			if(userName != ""){
+			            //userName = userName.split("=")[1];
+
+			            var url = encodeURI("http://45.120.155.190:8080/chart/app/payment/depositTimes/"+userName);
+			            //alert(url);
+			            $.get(url, 
+			         function(data, status){
+			                    if(data.status == 1){
+			                        var depositTimes = data.depositTimes;
+			                        if(depositTimes < 3){                        
+			                            $("select[name='zfqd'] option").each(function(){
+			                                 if(this.value == 22){
+			                                     $(this).remove();
+			                                 }
+			                            });
+			                       }
+			                   }                           
+
+			             });    
+			}*/
+
+			var queryParams = parentUrl.substring(parentUrl.indexOf("\?") + 1);
+			changeUrl(queryParams);
+			clearInterval(ret);
+		}
+
+		function changeUrl(userName) {
+			$("tr.tr1 td[name=payMode] input").on("click", function(){
+				var paymodeType = $(this).attr("data-paymode-type");
+				if(paymodeType == "0"){
+					$("tr[data-type=online_bank_input]").hide();
+					$("tr[data-type=scan_qr_wechat_input]").hide();
+					$("tr[data-type=scan_qr_input]").show();
+				}if(paymodeType == "0_1"){
+					$("tr[data-type=online_bank_input]").hide();
+					$("tr[data-type=scan_qr_wechat_input]").show();
+					$("tr[data-type=scan_qr_input]").hide();
+				}else if(paymodeType == "1"){	
+					$("tr[data-type=online_bank_input]").show();
+					$("tr[data-type=scan_qr_wechat_input]").hide();
+					$("tr[data-type=scan_qr_input]").hide();
+				}
+			});
+		}
+
+		function queryOnlineBankCard() {
+			var clickCount = parseInt($("#zfqd").attr("data-clickCount"));
+			if (clickCount == 0) {
+				var domain = parseDomain();
+				var url = '/lottery/app/configuration/online/bankAccounts';
+				if (typeof domain != 'undefined' && domain.length > 0) {
+					url = domain + url;
+				} else {
+					url = 'http://45.120.155.190/lottery/app/configuration/online/bankAccounts';
+				}
+				$.get(url, function(data) {
+					if (data.status == 1) {
+						jQuery("#zfqd").empty();
+
+						var onlineBankCards = data.data;
+						for (var i = 0; i < onlineBankCards.length; i++) {
+							$("#zfqd").append(
+									"<option value='"+onlineBankCards[i].remark+"'>"
+											+ onlineBankCards[i].bankName
+											+ "</option>");
+						}
+					}
+
+				});
+			}
+			clickCount += 1;
+			$("#zfqd").attr("data-clickCount", clickCount + "");
+		}
+
+		function parseDomain() {
+			var currURL = location.href;
+			var domain = '';
+
+			if (currURL.indexOf("http") >= 0) {
+				if (currURL.indexOf("/", currURL.indexOf("http") + 7) > 0) {
+					domain = currURL.substring(0, currURL.indexOf("/", currURL
+							.indexOf("http") + 7));
+				} else {
+					domain = currURL;
+				}
+
+			}
+
+			if (typeof domain == 'undefined' || domain.length == 0) {
+				return '';
+			}
+
+			if (domain.indexOf(":", 7) > 0) {
+				domain = domain.substring(0, domain.indexOf(":", 7));
+			}
+			return domain;
+		}
+	</script>
+
+</body>
+</html>
+
