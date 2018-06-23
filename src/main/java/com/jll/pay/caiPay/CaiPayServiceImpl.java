@@ -158,6 +158,18 @@ public class CaiPayServiceImpl implements CaiPayService
 	@Value("${merchant3.receivableType}")
 	private String merchant3ReceivableType;
 	
+	@Value("${merchant4.merId}")
+	private String merchant4MerId;
+	
+	@Value("${merchant4.key}")
+	private String merchant4Key;
+	
+	@Value("${merchant4.payMode}")
+	private String merchant4PayMode;
+	
+	@Value("${merchant4.receivableType}")
+	private String merchant4ReceivableType;
+	
 	private List<Merchant> merchants/* = new ArrayList<>()*/;
 	
 	@PostConstruct
@@ -187,6 +199,14 @@ public class CaiPayServiceImpl implements CaiPayService
 		merchant3.setPayModes(payModes3);
 		merchant3.setReceivableType(merchant3ReceivableType);
 		merchants.add(merchant3);
+		
+		Merchant merchant4 = new Merchant();
+		merchant4.setKey(merchant4Key);
+		merchant4.setMerId(merchant4MerId);
+		List<String> payModes4 = Arrays.asList(merchant4PayMode.split("\\|"));
+		merchant4.setPayModes(payModes4);
+		merchant4.setReceivableType(merchant4ReceivableType);
+		merchants.add(merchant4);
 	}
 	
 	@Override
