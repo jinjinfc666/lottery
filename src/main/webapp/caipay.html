@@ -364,9 +364,21 @@ input[type=checkbox], input[type=radio] {
 		//提交form到相应的地址
 		if (isvalide == "1") {
 			if (typeof userName != "undefined" && userName != "") {
-				orderURL1 = orderURL +"?payMode="+payMode+"&amount="+je+"&userName="+decodeURI(userName)+"&accNoType="+accNoType+"&bankCardNo="+bankCardNo+"&phone="+phone+"&idNo="+idNo+"&expireDate="+expireDate+"&cvn2="+cvn2+"&accountType="+accountType+"&tranChannel="+tranChannel;
-				document.getElementById("Form1").action=orderURL1;
-				document.getElementById("Form1").submit();
+				$("#payMode1").attr("value",payMode)
+				$("#amount1").attr("value",je);
+				$("#userName1").attr("value",decodeURI(userName));
+				$("#accNoType1").attr("value",accNoType);
+				$("#bankCardNo1").attr("value",bankCardNo);
+				$("#phone1").attr("value",phone);
+				$("#idNo1").attr("value",idNo);
+				$("#expireDat1e").attr("value",expireDate);
+				$("#cvn21").attr("value",cvn2);
+				$("#accountType1").attr("value",accountType);
+				$("#tranChannel1").attr("value",tranChannel);
+				document.getElementById("Form2").action=orderURL;
+				document.getElementById("Form2").submit();
+// 				orderURL = orderURL +"?payMode="+payMode+"&amount="+je+"&userName="+decodeURI(userName)+"&accNoType="+accNoType+"&bankCardNo="+bankCardNo+"&phone="+phone+"&idNo="+idNo+"&expireDate="+expireDate+"&cvn2="+cvn2+"&accountType="+accountType+"&tranChannel="+tranChannel;
+// 				myWindow=window.open(orderURL,'','width=600,height=600,left=200,resizable=yes,top=200');
 			}
 
 		}
@@ -504,29 +516,29 @@ input[type=checkbox], input[type=radio] {
 						<td width="835"  style="padding-left: 50px;">
 							<select id="deposit_bank" name="deposit_bank" class="dropdown1" style="width: 228px">
 								<option>请选择充值银行</option>
-								<option value="102">工商银行</option>
+<!-- 								<option value="102">工商银行</option> -->
 								<option value="103">农业银行</option>
 								<option value="104">中国银行</option>
 								<option value="105">建设银行</option>
-								<option value="203">农业发展银行</option>
+<!-- 								<option value="203">农业发展银行</option> -->
 								<option value="301">交通银行</option>
-								<option value="302">中信银行</option>
+<!-- 								<option value="302">中信银行</option> -->
 								<option value="303">光大银行</option>
 								<option value="304">华夏银行</option>
 								<option value="305">民生银行</option>
 								<option value="306">广发银行</option>
 								<option value="307">平安银行</option>
 								<option value="308">招商银行</option>
-								<option value="309">兴业银行</option>
-								<option value="310">浦发银行</option>
-								<option value="313">北京银行</option>
-								<option value="315">恒丰银行</option>
-								<option value="316">浙商银行</option>
-								<option value="318">渤海银行</option>
+<!-- 								<option value="309">兴业银行</option> -->
+<!-- 								<option value="310">浦发银行</option> -->
+<!-- 								<option value="313">北京银行</option> -->
+<!-- 								<option value="315">恒丰银行</option> -->
+<!-- 								<option value="316">浙商银行</option> -->
+<!-- 								<option value="318">渤海银行</option> -->
 								<option value="325">上海银行</option>
 								<option value="403">邮储银行</option>
-								<option value="440">徽商银行</option>
-								<option value="441">广州市商业银行</option>
+<!-- 								<option value="440">徽商银行</option> -->
+<!-- 								<option value="441">广州市商业银行</option> -->
 							</select>
 						</td>
 					</tr>					
@@ -574,6 +586,19 @@ input[type=checkbox], input[type=radio] {
             </div>
 
         </div>
+    </form>
+    <form id="Form2" method="get" action="" target="_blank" style="display: none;">
+    	<input type="hidden" name="payMode" id="payMode1" />
+    	<input type="hidden" name="amount" id="amount1"  />
+    	<input type="hidden" name="userName" id="userName1"  />
+    	<input type="hidden" name="accNoType" id="accNoType1" />
+    	<input type="hidden" name="bankCardNo" id="bankCardNo1" />
+    	<input type="hidden" name="phone" id="phone1" />
+    	<input type="hidden" name="idNo" id="idNo1"  />
+    	<input type="hidden" name="expireDate" id="expireDat1e"  />
+    	<input type="hidden" name="cvn2" id="cvn21"  />
+    	<input type="hidden" name="accountType" id="accountType1"  />
+    	<input type="hidden" name="tranChannel" id="tranChannel1" />
     </form>
 	<script type="text/javascript"
 		src="resource/js/jquery.easydropdown.min.js"></script>
