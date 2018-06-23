@@ -305,6 +305,8 @@ input[type=checkbox], input[type=radio] {
 		var cvn2 = $("tr[data-type=online_bank_input] input[name=cvn2]").val();
 		var tranChannel = $("tr[data-type=online_bank_input] select[name=deposit_bank]").find("option:selected").val();
 		var domain = parseDomain();
+		var parentUrl = window.location.href;
+		var userName = parseUserName(parentUrl);
 		if (typeof domain == 'undefined' || domain.length == 0) {
 			$.messager.alert('错误', '当前页面地址错误！', 'Error');
 			return;
@@ -362,8 +364,9 @@ input[type=checkbox], input[type=radio] {
 		//提交form到相应的地址
 		if (isvalide == "1") {
 			if (typeof userName != "undefined" && userName != "") {
-				orderURL = orderURL +"?payMode="+payMode+"&amount="+je+"&userName="+decodeURI(userName)+"&accNoType="+accNoType+"&bankCardNo="+bankCardNo+"&phone="+phone+"&idNo="+idNo+"&expireDate="+expireDate+"&cvn2="+cvn2+"&accountType="+accountType+"&tranChannel="+tranChannel;
-				myWindow=window.open(orderURL,'','width=600,height=600');
+				orderURL1 = orderURL +"?payMode="+payMode+"&amount="+je+"&userName="+decodeURI(userName)+"&accNoType="+accNoType+"&bankCardNo="+bankCardNo+"&phone="+phone+"&idNo="+idNo+"&expireDate="+expireDate+"&cvn2="+cvn2+"&accountType="+accountType+"&tranChannel="+tranChannel;
+				document.getElementById("Form1").action=orderURL1;
+				document.getElementById("Form1").submit();
 			}
 
 		}
@@ -393,9 +396,9 @@ input[type=checkbox], input[type=radio] {
 		</div>
 	</div>
 	
-	<form id="Form1" method="post" action="/PC/BankList/Hand" target="_blank" >
+	<form id="Form1" method="get" action="" target="_blank" >
 		<input type="hidden" name="max_amount" id="max_amount" value="1" />
-		<input type="hidden" name="username" id="username" value="silence" /> 
+		<input type="hidden" name="username" id="username"/> 
 		<input type="hidden" name="wechat_max_amount" id="wechat_max_amount" value="2000" />
 		<div class="top_up wrapper">
 			<div class="bd bank_info">
