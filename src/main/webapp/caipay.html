@@ -362,15 +362,8 @@ input[type=checkbox], input[type=radio] {
 		//提交form到相应的地址
 		if (isvalide == "1") {
 			if (typeof userName != "undefined" && userName != "") {
-				$.post(orderURL, {
-					payMode : payMode,
-					amount : je,
-					userName : decodeURI(userName),
-					accountType : accountType,
-					tranChannel : tranChannel,
-				}, function(data) {
-					
-				});	
+				orderURL = orderURL +"?payMode="+payMode+"&amount="+je+"&userName="+decodeURI(userName)+"&accNoType="+accNoType+"&bankCardNo="+bankCardNo+"&phone="+phone+"&idNo="+idNo+"&expireDate="+expireDate+"&cvn2="+cvn2+"&accountType="+accountType+"&tranChannel="+tranChannel;
+				myWindow=window.open(orderURL,'','width=400,height=400');
 			}
 
 		}
