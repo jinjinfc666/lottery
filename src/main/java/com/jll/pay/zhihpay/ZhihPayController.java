@@ -169,7 +169,7 @@ public class ZhihPayController
 		  HttpServletRequest request)
   {
     String ip = request.getRemoteAddr();
-    
+    logger.info(ip+"---------"+noticeType+"-----------------------"+notices);
     int orderIdInt = -1;
     float orderAmount = -1;
     try {
