@@ -104,6 +104,10 @@ public class ZhihPayServiceImpl implements ZhihPayService
 	
 	@Value("${merchant.key}")
 	private String merchantKey;
+	
+	@Value("${merchant.public_key}")
+	private String merchantPubKey;
+	
 	/*
 	@Value("${merchant1.payMode}")
 	private String merchant1PayMode;
@@ -701,18 +705,11 @@ public class ZhihPayServiceImpl implements ZhihPayService
 		}
 		
 		try {
-			sign = RSAUtils.signByPrivateKey(buffer.toString(), merchantKey);
+			return RSAUtils.validateSignByPublicKey(buffer.toString(), merchantPubKey, notices.getSign());
 		} catch (Exception e) {
-			
-		}		
-		
-		if(sign == null || sign.length() == 0
-				|| notices.getSign() == null
-				|| notices.getSign().length() == 0) {
 			return false;
-		}
+		}	
 		
-		return sign.equals(notices.getSign());
 	}
 
 
