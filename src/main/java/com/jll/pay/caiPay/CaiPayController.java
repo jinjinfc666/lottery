@@ -2,6 +2,7 @@ package com.jll.pay.caiPay;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -231,7 +232,12 @@ public class CaiPayController
     	return "FAIL";
     }
     
-    caiPayService.receiveDepositOrder(orderIdInt, orderAmount);
+    boolean isNotified = caiPayService.isOrderNotified(notices);
+    if(isNotified) {
+    	return "SUCCESS";
+    }
+    DecimalFormat numFormat = new DecimalFormat("##0");
+    caiPayService.receiveDepositOrder(orderIdInt,Float.parseFloat(numFormat.format(orderAmount/100)));
         
     return "SUCCESS";
   }
@@ -285,7 +291,6 @@ public class CaiPayController
     	ret.put(KEY_RESPONSE_STATUS, false);
     	return ret;
     }
-    
     caiPayService.receiveDepositOrder(orderIdInt);
         
     ret.put(KEY_RESPONSE_STATUS, true);

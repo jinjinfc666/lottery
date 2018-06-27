@@ -37,6 +37,7 @@
 	cursor: pointer;
 	text-align: center;
 	border-bottom: solid 2px transparent;
+	margin: 100px 350px;
 }
 
 .h_g_n_ico{
@@ -55,7 +56,7 @@ input[type=checkbox], input[type=radio] {
 }
 
 .qr{
-	 margin: 40px 0px 30px 0px;
+	 margin: 20px;
 }
 
 .edit_menu{height: 30px;margin:1px 0px;}
@@ -72,6 +73,9 @@ input[type=checkbox], input[type=radio] {
     <script src="js/html5.js"></script>
     <![endif]-->
 <script>
+	function release(idName){
+		$("#"+idName).removeAttr("disabled");
+	}
 	function NextStep() {
 		var max_amount = $("#max_amount").val();
 		var je = $("#order_amount").val();
@@ -199,6 +203,8 @@ input[type=checkbox], input[type=radio] {
 
 		//提交form到相应的地址
 		if (isvalide == "1") {
+			$("#button_next2").attr("disabled","disabled");
+			setTimeout("release('button_next2')",10000); 
 			if (typeof userName != "undefined" && userName != "") {
 				$.post(orderURL, {
 					serviceType : payMode,
@@ -216,6 +222,7 @@ input[type=checkbox], input[type=radio] {
 							text: data.data.qrcode //任意内容
 						});
 					} else {
+						$("#button_next2").removeAttr("disabled");
 						$.messager.alert('错误', '操作失败！', 'Error');
 					}
 
@@ -267,6 +274,8 @@ input[type=checkbox], input[type=radio] {
 
 		//提交form到相应的地址
 		if (isvalide == "1") {
+			$("#button_next3").attr("disabled","disabled");
+			setTimeout("release('button_next3')",10000); 
 			if (typeof userName != "undefined" && userName != "") {
 				$.post(orderURL, {
 					serviceType : payMode,
@@ -278,6 +287,7 @@ input[type=checkbox], input[type=radio] {
 						$("#Form3").show();
 						$('#qr_code').qrcode(data.data.qrcode)
 					} else {
+						$("#button_next3").removeAttr("disabled");
 						$.messager.alert('错误', '操作失败！', 'Error');
 					}
 
@@ -429,7 +439,7 @@ input[type=checkbox], input[type=radio] {
 					<tr class='tr1' data-type="scan_qr_input">
 						<td width="197" align="center">充值金额：</td>
 						<td width="835">
-							<input type="text" id="order_amount" name="order_amount" class='txt txt1' />
+							<input type="text" id="order_amount" name="order_amount" class='txt txt1' onkeyup="this.value = this.value.replace(/[^0-9]+/, '');" onchange="this.value = this.value.replace(/[^0-9]+/, '');" />
 						</td>
 					</tr>
 					
@@ -452,22 +462,22 @@ input[type=checkbox], input[type=radio] {
 					<tr class='tr1' data-type="online_bank_input" style="display: none;">
 						<td width="197" align="center">充值金额：</td>
 						<td width="835">
-							<input type="text" id="order_amount" name="order_amount" class='txt txt1' />
+							<input type="text" id="order_amount" name="order_amount" class='txt txt1' onkeyup="this.value = this.value.replace(/[^0-9]+/, '');" onchange="this.value = this.value.replace(/[^0-9]+/, '');" />
 						</td>
 					</tr>				
 					<tr data-type="online_bank_input" style="display: none;">
 						<td colspan="2" align="left"><input type="button"
-							id="button_next" value="下一步" class='ui_smt next'
+							id="button_next1" value="下一步" class='ui_smt next'
 							onclick="onlineBankPay();" /></td>
 					</tr>
 					<tr data-type="scan_qr_input">
 						<td colspan="2" align="left">
-							<input type="button" id="button_next" value="下一步" class='ui_smt next' onclick="scanPay()" />
+							<input type="button" id="button_next2" value="下一步" class='ui_smt next' onclick="scanPay()" />
 						</td>
 					</tr>
 					<tr data-type="scan_qr_wechat_input"  style="display: none;">
 						<td colspan="2" align="left">
-							<input type="button" id="button_next" value="下一步" class='ui_smt next' onclick="wechatScanPay()" />
+							<input type="button" id="button_next3" value="下一步" class='ui_smt next' onclick="wechatScanPay()" />
 						</td>
 					</tr>
 				</table>
@@ -493,7 +503,7 @@ input[type=checkbox], input[type=radio] {
                 </ul>
             </div>
             <!--大额充值-->
-            <div class="bd h_g_n_content">
+            <div class="bd h_g_n_content" style="width:300px;height:300px;background-color: #FFF;">
                 <div id="qr_code" class="qr"></div>
                 
             </div>

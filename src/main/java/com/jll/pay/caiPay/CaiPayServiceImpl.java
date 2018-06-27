@@ -37,6 +37,7 @@ import com.jll.entity.MoneyInInfo;
 import com.jll.entity.TbBankback;
 import com.jll.entity.TbUsers;
 import com.jll.entity.display.CaiPayNotices;
+import com.jll.entity.display.ZhihPayNotices;
 import com.jll.pay.PaymentDao;
 import com.jll.pay.order.DepositOrderDao;
 import com.jll.sys.config.ReceiverBankCardDao;
@@ -438,11 +439,10 @@ public class CaiPayServiceImpl implements CaiPayService
 		params.put("createTime", format.format(createTime));
 		String reqHost = (String)params.get("reqHost");
 		String reqContext = (String)params.get("reqContext");
-		params.put("asynNotifyURL", onlineBankPayAsynNotifyUrl.replace("{host}", reqHost).replace("{context}", reqContext));
-		params.put("synNotifyURL", onlineBankPaysynNotifyUrl.replace("{host}", reqHost).replace("{context}", reqContext));
-		params.put("asynNotifyURL", scanPayAsynNOtifyURL);
-		params.put("synNotifyURL", scanPaySynNOtifyURL);
-		
+//		params.put("asynNotifyURL", onlineBankPayAsynNotifyUrl.replace("{host}", reqHost).replace("{context}", reqContext));
+//		params.put("synNotifyURL", onlineBankPaysynNotifyUrl.replace("{host}", reqHost).replace("{context}", reqContext));
+		params.put("asynNotifyURL", scanPayAsynNOtifyURL.replace("{host}", reqHost).replace("{context}", reqContext));
+		params.put("synNotifyURL", scanPaySynNOtifyURL.replace("{host}", reqHost).replace("{context}", reqContext));
 		pushParams = produceParamsOfScanQRPay(params);
 		if(pushParams == null || pushParams.size() == 0) {
 			return Message.Error.ERROR_PAYMENT_CAIPAY_FAILED_SIGNATURE_PARAMS.getCode();
@@ -653,6 +653,17 @@ public class CaiPayServiceImpl implements CaiPayService
 		depositOrderDao.updateDepositOrder(depositOrder);
 		
 		return String.valueOf(Message.status.SUCCESS.getCode());
+	}
+	@Override
+	public boolean isOrderNotified(CaiPayNotices notices) {
+		String orderId = notices.getPrdOrdNo();
+		MoneyInInfo depositOrder = depositOrderDao.queryDepositOrderById(Integer.parseInt(orderId));
+		
+		if(depositOrder.getStatus() == 1) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	private Merchant queryCurrMerchant(String payMode) {

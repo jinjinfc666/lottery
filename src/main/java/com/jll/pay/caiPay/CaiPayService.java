@@ -44,7 +44,7 @@ public interface CaiPayService extends BasicPaymentService
 	boolean isValid(Map<String, Object> params);
 	
 	boolean isNoticesValid(CaiPayNotices notices, int noticeType);	
-	
+	boolean isOrderNotified(CaiPayNotices notices);
 	/**
 	 * process the order that the money already in bank account.
 	 * @param orderId 
