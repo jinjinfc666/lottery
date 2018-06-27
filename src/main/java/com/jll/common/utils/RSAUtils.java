@@ -17,8 +17,14 @@ import java.util.Map;
 
 import javax.crypto.Cipher;
 
+import org.apache.log4j.Logger;
+
+import com.jll.pay.zhihpay.ZhihPayServiceImpl;
+
 public class RSAUtils
 {
+	private static Logger logger = Logger.getLogger(ZhihPayServiceImpl.class);
+	
   public static final String KEY_ALGORITHM = "RSA";
   public static final String SIGNATURE_ALGORITHM = "MD5withRSA";
   private static final String PUBLIC_KEY = "RSAPublicKey";

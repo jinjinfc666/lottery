@@ -189,6 +189,7 @@ public class ZhihPayController
     }
     
     if(!zhihPayService.isNoticesValid(notices, noticeType)) {
+    	logger.info("isNoticesValid ::: " + zhihPayService.isNoticesValid(notices, noticeType));
     	return "FAIL";
     }
     
