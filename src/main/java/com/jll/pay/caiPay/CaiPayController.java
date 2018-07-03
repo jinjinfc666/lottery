@@ -2,6 +2,7 @@ package com.jll.pay.caiPay;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,9 +65,14 @@ public class CaiPayController
     Map<String, String> data = new HashMap<>();
     String comment = Utils.produce6DigitsCaptchaCode();
 	Map<String, Object> params = new HashMap<>();
+	
+	BigDecimal bigDecimal=new BigDecimal(amount);
+    BigDecimal bigDecimal1=new BigDecimal(1);
+    float amount1=bigDecimal.divide(bigDecimal1, 2,BigDecimal.ROUND_HALF_UP).floatValue();
+	
 	params.put("userName", userName);
 	params.put("rechargeType", payMode);
-	params.put("amount", amount);
+	params.put("amount", amount1);
 	params.put("comment", comment);
 	params.put("reqHost", request.getServerName() +":"+ request.getServerPort());
 	params.put("reqContext", request.getServletContext().getContextPath());
@@ -121,7 +127,9 @@ public class CaiPayController
 	  Map<String,Object> data = new HashMap<>();
 	  
 	  String ip = request.getRemoteAddr();
-	  
+	  	
+	  	
+	    
 	    String comment = Utils.produce6DigitsCaptchaCode();
 		Map<String, Object> params = new HashMap<>();
 		params.put("userName", userName);
@@ -198,7 +206,6 @@ public class CaiPayController
 		  HttpServletRequest request)
   {
     //Map<String, Object> ret = new HashMap<>();
-    
     String ip = request.getRemoteAddr();
     
     int orderIdInt = -1;
@@ -236,8 +243,11 @@ public class CaiPayController
     if(isNotified) {
     	return "SUCCESS";
     }
-    DecimalFormat numFormat = new DecimalFormat("##0");
-    caiPayService.receiveDepositOrder(orderIdInt,Float.parseFloat(numFormat.format(orderAmount/100)));
+//    DecimalFormat numFormat = new DecimalFormat("##0");
+    BigDecimal bigDecimal=new BigDecimal(orderAmount);
+    BigDecimal bigDecimal1=new BigDecimal(100);
+    float orderAmount1=bigDecimal.divide(bigDecimal1, 2,BigDecimal.ROUND_HALF_UP).floatValue();
+    caiPayService.receiveDepositOrder(orderIdInt,orderAmount1);
         
     return "SUCCESS";
   }
@@ -248,52 +258,53 @@ public class CaiPayController
  * @param userName
  * @return        {"success": true}
  */
-  @RequestMapping(value={"/onlineBankPayNotices/{noticeType}"}, method={RequestMethod.POST}, consumes={"application/json"}, produces={"application/json"})
-  public Map<String, Object> onlineBankPayNotices(@PathVariable("noticeType") int noticeType ,
-		  @RequestBody TlCloudNotices notices,
-		  HttpServletRequest request)
-  {
-    Map<String, Object> ret = new HashMap<>();
-    
-    String ip = request.getRemoteAddr();
-    
-    int orderIdInt = -1;
-    
-    if(notices == null 
-    		|| notices.getOrder_id() == null 
-    		|| notices.getOrder_id().length() == 0) {    	
-    	
-    	ret.put(KEY_RESPONSE_STATUS, false);
-    	return ret;
-    }
-    
-    try {
-		orderIdInt = Integer.parseInt(notices.getOrder_id());
-	}catch(NumberFormatException ex) {
-		ret.put(KEY_RESPONSE_STATUS, false);
-    	return ret;
-	}
-    
-    boolean isAuthorized = caiPayService.isAuthorized(ip);
-    
-    logger.info("The reuqest IP is ::: " + (ip == null?"null":ip) +"  isAuthroized ::: " + isAuthorized);
-    
-    if(!isAuthorized) {
-    	ret.put(KEY_RESPONSE_STATUS, false);
-    	return ret;
-    }
-    
-    boolean isExisting = caiPayService.isOrderExisting(orderIdInt);
-    
-    logger.info("The order ::: " + orderIdInt +"  isExisting :::" + isExisting);
-    
-    if(!isExisting) {
-    	ret.put(KEY_RESPONSE_STATUS, false);
-    	return ret;
-    }
-    caiPayService.receiveDepositOrder(orderIdInt);
-        
-    ret.put(KEY_RESPONSE_STATUS, true);
-    return ret;
-  }
+//  @RequestMapping(value={"/onlineBankPayNotices/{noticeType}"}, method={RequestMethod.POST}, consumes={"application/json"}, produces={"application/json"})
+//  public Map<String, Object> onlineBankPayNotices(@PathVariable("noticeType") int noticeType ,
+//		  @RequestBody TlCloudNotices notices,
+//		  HttpServletRequest request)
+//  {
+//	  logger.info(noticeType+"--------------------"+notices+"---------------------"+"caifuwangyin-------------------");
+//    Map<String, Object> ret = new HashMap<>();
+//    
+//    String ip = request.getRemoteAddr();
+//    
+//    int orderIdInt = -1;
+//    
+//    if(notices == null 
+//    		|| notices.getOrder_id() == null 
+//    		|| notices.getOrder_id().length() == 0) {    	
+//    	
+//    	ret.put(KEY_RESPONSE_STATUS, false);
+//    	return ret;
+//    }
+//    
+//    try {
+//		orderIdInt = Integer.parseInt(notices.getOrder_id());
+//	}catch(NumberFormatException ex) {
+//		ret.put(KEY_RESPONSE_STATUS, false);
+//    	return ret;
+//	}
+//    
+//    boolean isAuthorized = caiPayService.isAuthorized(ip);
+//    
+//    logger.info("The reuqest IP is ::: " + (ip == null?"null":ip) +"  isAuthroized ::: " + isAuthorized);
+//    
+//    if(!isAuthorized) {
+//    	ret.put(KEY_RESPONSE_STATUS, false);
+//    	return ret;
+//    }
+//    
+//    boolean isExisting = caiPayService.isOrderExisting(orderIdInt);
+//    
+//    logger.info("The order ::: " + orderIdInt +"  isExisting :::" + isExisting);
+//    
+//    if(!isExisting) {
+//    	ret.put(KEY_RESPONSE_STATUS, false);
+//    	return ret;
+//    }
+//    caiPayService.receiveDepositOrder(orderIdInt);
+//        
+//    ret.put(KEY_RESPONSE_STATUS, true);
+//    return ret;
+//  }
 }

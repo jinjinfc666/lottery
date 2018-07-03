@@ -243,8 +243,11 @@ public class CaiPayServiceImpl implements CaiPayService
 		if(params.get("createTime") == null) {
 			params.put("createTime", new Date());
 		}
-		
-		MoneyInInfo depositOrder = depositOrderDao.saveDepositOrder(userName, payModeDesc, amount, comment, (Date)params.get("createTime"));
+		BigDecimal bigDecimal=new BigDecimal(amount);
+	    BigDecimal bigDecimal1=new BigDecimal(1);
+	    float amount1=bigDecimal.divide(bigDecimal1, 2,BigDecimal.ROUND_HALF_UP).floatValue();
+	    
+		MoneyInInfo depositOrder = depositOrderDao.saveDepositOrder(userName, payModeDesc, amount1, comment, (Date)params.get("createTime"));
 		
 		if(depositOrder == null) {
 			throw new RuntimeException();
@@ -633,7 +636,7 @@ public class CaiPayServiceImpl implements CaiPayService
 		depositRecord.setBackType("存款");
 		depositRecord.setBackTypeText("系统充值");
 		//depositRecord.setBankUser(bankUser);
-		depositRecord.setFollows("网银充值成功");
+		depositRecord.setFollows(depositOrder.getRechargeType()+"成功");
 		//depositRecord.setId(id);
 		depositRecord.setIfAutoTransfer(0);
 		depositRecord.setIfDeal(0);
@@ -642,8 +645,6 @@ public class CaiPayServiceImpl implements CaiPayService
 		depositRecord.setUserName(user.getUserName());
 		depositRecord.setWebSite("JZ");
 		recBankCardDao.addDepositRecord(depositRecord);
-		
-		
 		user.setUserMoney(userMoney.add(inAmount).floatValue());
 		user.setAllMoney(allMoney.add(inAmount).floatValue());
 		userDao.modifyUserInfo(user);

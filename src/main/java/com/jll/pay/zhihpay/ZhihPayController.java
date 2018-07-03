@@ -1,6 +1,7 @@
 package com.jll.pay.zhihpay;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -210,7 +211,11 @@ public class ZhihPayController
     	return "SUCCESS";
     }
     
-    zhihPayService.receiveDepositOrder(orderIdInt, orderAmount);
+    BigDecimal bigDecimal=new BigDecimal(orderAmount);
+    BigDecimal bigDecimal1=new BigDecimal(100);
+    float orderAmount1=bigDecimal.divide(bigDecimal1, 2,BigDecimal.ROUND_HALF_UP).floatValue();
+    
+    zhihPayService.receiveDepositOrder(orderIdInt, orderAmount1);
         
     return "SUCCESS";
   }

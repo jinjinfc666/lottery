@@ -210,7 +210,11 @@ public class ZhihPayServiceImpl implements ZhihPayService
 			params.put("createTime", new Date());
 		}
 		
-		MoneyInInfo depositOrder = depositOrderDao.saveDepositOrder(userName, payModeDesc, amount, comment, (Date)params.get("createTime"));
+		BigDecimal bigDecimal=new BigDecimal(amount);
+	    BigDecimal bigDecimal1=new BigDecimal(1);
+	    float amount1=bigDecimal.divide(bigDecimal1, 2,BigDecimal.ROUND_HALF_UP).floatValue();
+		
+		MoneyInInfo depositOrder = depositOrderDao.saveDepositOrder(userName, payModeDesc, amount1, comment, (Date)params.get("createTime"));
 		
 		if(depositOrder == null) {
 			throw new RuntimeException();
