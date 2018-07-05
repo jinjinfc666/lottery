@@ -162,9 +162,11 @@ public class HttpRemoteStub {
 		try {
 			response = httpclient.execute(httpPost);
 			int status = response.getStatusLine().getStatusCode();  
+			logger.debug(status+"------------------------------------------------------------asdasdadsa---------------");
             if (status == HttpStatus.SC_OK) {
             	HttpEntity entity = response.getEntity();
             	responseBody = EntityUtils.toString(entity);
+            	logger.debug(responseBody+"---------------------------------------------------------------------------");
             	ret.put("responseBody", responseBody);
             }
             ret.put("status", status);

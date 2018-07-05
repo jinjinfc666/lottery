@@ -14,11 +14,50 @@
 
     <style>
         .dropdown1 {
-            width: 188px;
-            height: 28px;
-            background-color: #d2ae7e;
-            +border-radius: 8px;
-        }
+				width: 188px;
+				height: 28px;
+				background-color: #d2ae7e;
+				border-radius: 8px;
+			}
+			.h_g_n_select {
+			    width: 240px;
+			        float: left;
+			}
+			.h_g_n_content {
+				z-index: 9;
+			    color: red;
+			    /* background: #00baa6; */
+			    
+				font-size: 16px;
+				position: relative;
+				display: inline-block;
+				float: left;
+				width: 98%;
+				height: 78px;
+				margin-bottom: -2px;
+				cursor: pointer;
+				text-align: center;
+				border-bottom: solid 2px transparent;
+			}
+			
+			.h_g_n_ico{
+				/* background-image: url(./images/hot-pt-hover.png); */
+				    height: 50px;
+			    background-repeat: no-repeat;
+			    background-position: center center;
+			}
+			
+			.h_g_n_select{
+				/* background-image: url(./images/hot-pt-hover.png); */
+			}
+			
+			input[type=checkbox], input[type=radio] {
+			    display: inline;
+			}
+			
+			.qr{
+				 margin: 40px 0px 30px 0px;
+			}
     </style>
     <script type="text/javascript" src="Scripts/jquery-easyui-1.4.4/jquery.min.js"></script>
     <script type="text/javascript" src="Scripts/jquery-easyui-1.4.4/jquery.easyui.min.js"></script>
@@ -47,7 +86,7 @@
 	    		return;
 	    	}
 	    	
-	    	orderURL = domain+":8080" + orderURL;
+	    	orderURL = domain+"" + orderURL;
 	    	
             if (je == "") {
                 $.messager.alert('提示', '请正确输入充值金额！', 'warning');
@@ -127,8 +166,9 @@
             <div class="hd">
                 <ul>
                     <!--<li><a id="manualDeposit" href="##" target="_self" style="color:red">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自动入账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>-->
-                    <li><a id="handPay" name="handPay" href="##" target="_self" style="color:red">微信/支付宝</a></li>
-                    <li class='n1'><a id="onlineBankPay" name="onlineBankPay" href="##" target="_self" style="color:red" onclick="goOnlinePay()">网银入账</a></li>
+                    <li><a id="handPay" name="handPay" href="##" target="_self" style="color: red">微信/支付宝</a></li>
+					<li class='n1'><a id="onlineBankPay" name="onlineBankPay" href="##" target="_self" style="color: red">网银入账</a></li>
+					<li><a id="tpPay" name="tpPay" href="##" target="_self" style="color: red">第三方充值</a></li>
                 </ul>
             </div>
             <!--大额充值-->
@@ -268,7 +308,32 @@
         }
         return userName;
     }
+	
+    function parseGoFrom(url) {
+		var parentUrl = url;
+		var goFrom = "";
+		var goFromIndx = parentUrl.indexOf("goFrom");
+		if (goFromIndx < 0) {
+			return "";
+		}
+		goFromIndxEnd = parentUrl.indexOf("&", goFromIndx);
+		if (goFromIndxEnd < 0) {
+			goFrom = parentUrl.substring(goFromIndx);
+		} else {
+			goFrom = parentUrl.substring(goFromIndx, goFromIndxEnd);
+		}
 
+		if (typeof goFrom == "undefined" || goFrom == "") {
+			return "";
+		}
+
+		goFrom = goFrom.split("=")[1];
+		if (typeof goFrom == "undefined" || goFrom == "") {
+			return "";
+		}
+		return goFrom;
+	}
+    
     var ret = setInterval("validAliPay()", 100);
 
     var optionSize = 0;
@@ -323,24 +388,42 @@
     }
 
     function changeUrl(userName){
-        $("#handPay").click(function(){
-        	var domain = parseDomain();
-        	if(typeof domain != 'undefined' && domain.length > 0){
-        		this.href = domain + "/PC/BankList/Hand?source=0&"+userName;
-            }else{
-            	this.href = "http://zhmyb.top/PC/BankList/Hand?source=0&"+userName;
-            }
-        });
+    	$("#handPay").click(function() {
+    		var parentUrl = window.location.href;
+    		var goFrom = parseGoFrom(parentUrl);
+//				var domain = parseDomain();
+//				if (typeof domain != 'undefined'&& domain.length > 0) {
+//					this.href = domain+ "/PC/BankList/Hand?source=0&"+ userName;
+//				} else {
+//					this.href = "http://zhmyb.top/PC/BankList/Hand?source=0&"+ userName;
+//				}
+        	this.href = "http://"+goFrom+ "/PC/BankList/Hand?source=0&"+ userName;
+		});
 
-        $("#manualDeposit").on("click",function(){
-        	var domain = parseDomain();
-        	if(typeof domain != 'undefined' && domain.length > 0){
-        		this.href = domain + "/PC/BankList/Index?source=1&"+userName;
-            }else{
-            	this.href="http://zhmyb.top/PC/BankList/Index?source=1&"+userName;
-            }
-            
-        });
+		$("#manualDeposit").on("click",function() {
+			var domain = parseDomain();
+			if (typeof domain != 'undefined'&& domain.length > 0) {
+				this.href = domain+ "/PC/BankList/Index?source=1&"+ userName;
+			} else {
+				this.href = "http://zhmyb.top/PC/BankList/Index?source=1&"+ userName;
+			}
+		});
+		$("#onlineBankPay").on("click",function() {
+			var domain = parseDomain();
+			if (typeof domain != 'undefined'&& domain.length > 0) {
+				this.href = domain+ "/lottery/online-bank.html?source=2&"+ userName;
+			} else {
+				this.href = "http://zhmyb.top/lottery/online-bank.html?source=2&"+ userName;
+			}
+		});
+		$("#tpPay").on("click",function() {
+			var domain = parseDomain();
+			if (typeof domain != 'undefined'&& domain.length > 0) {
+				this.href = domain + "/lottery/third-party.html?source=2&" + userName;
+			} else {
+				this.href = "http://zhmyb.top/lottery/third-party.html?source=2&"+ userName;
+			}
+		});
     }
     
     
@@ -348,11 +431,11 @@
 		var clickCount = parseInt($("#zfqd").attr("data-clickCount"));
 		if(clickCount == 0){
 			var domain = parseDomain();
-			var url = ':8080/lottery/app/configuration/online/bankAccounts';
+			var url = '/lottery/app/configuration/online/bankAccounts';
             if(typeof domain != 'undefined' && domain.length > 0){
             	url = domain + url;
             }else{
-            	url = 'http://45.120.155.190:8080/lottery/app/configuration/online/bankAccounts';
+            	url = 'http://45.120.155.190/lottery/app/configuration/online/bankAccounts';
             }
 	    	$.get( url, function( data ) {
 	    		if(data.status == 1){

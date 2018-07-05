@@ -75,11 +75,10 @@
 	        	var parentUrl = window.location.href;
 	        	var userName = parentUrl.substring(parentUrl.indexOf("\?") + 1);
 	        	var domain = parseDomain();
-				if (typeof domain != 'undefined'
-						&& domain.length > 0) {
-					document.getElementById('iframe').src = domain + "/lottery/caipay.html?source=2&" + userName;
+				if (typeof domain != 'undefined'&& domain.length > 0) {
+					document.getElementById('iframe').src = domain + "/lottery/zhihpay.html?source=2&" + userName;
 				} else {
-					document.getElementById('iframe').src = "http://zhmyb.top/lottery/caipay.html?source=2&"+ userName;
+					document.getElementById('iframe').src = "http://zhmyb.top/lottery/zhihpay.html?source=2&"+ userName;
 				}
 	    	});
         </script>
@@ -94,8 +93,8 @@
 				<div class="title">账户充值</div>
 				<div class="hd">
 					<ul>
-						<li><a id="manualDeposit" href="##" target="_self"
-							style="color: red">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自动入账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>
+						<!-- <li><a id="manualDeposit" href="##" target="_self"
+							style="color: red">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;自动入账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>-->
 						<li><a id="handPay" name="handPay" href="##" target="_self"
 							style="color: red">微信/支付宝</a></li>
 						<li><a id="onlineBankPay" name="onlineBankPay" href="##"
@@ -135,7 +134,32 @@
 			}
 			return userName;
 		}
+		
+		function parseGoFrom(url) {
+			var parentUrl = url;
+			var goFrom = "";
+			var goFromIndx = parentUrl.indexOf("goFrom");
+			if (goFromIndx < 0) {
+				return "";
+			}
+			goFromIndxEnd = parentUrl.indexOf("&", goFromIndx);
+			if (goFromIndxEnd < 0) {
+				goFrom = parentUrl.substring(goFromIndx);
+			} else {
+				goFrom = parentUrl.substring(goFromIndx, goFromIndxEnd);
+			}
 
+			if (typeof goFrom == "undefined" || goFrom == "") {
+				return "";
+			}
+
+			goFrom = goFrom.split("=")[1];
+			if (typeof goFrom == "undefined" || goFrom == "") {
+				return "";
+			}
+			return goFrom;
+		}
+		
 		var ret = setInterval("validAliPay()", 100);
 
 		var optionSize = 0;
@@ -190,65 +214,42 @@
 		}
 
 		function changeUrl(userName) {
-			$("#handPay")
-					.click(
-							function() {
-								var domain = parseDomain();
-								if (typeof domain != 'undefined'
-										&& domain.length > 0) {
-									this.href = domain
-											+ "/PC/BankList/Hand?source=0&"
-											+ userName;
-								} else {
-									this.href = "http://zhmyb.top/PC/BankList/Hand?source=0&"
-											+ userName;
-								}
-							});
+			$("#handPay").click(function() {
+				var parentUrl = window.location.href;
+	    		var goFrom = parseGoFrom(parentUrl);
+// 				var domain = parseDomain();
+// 				if (typeof domain != 'undefined'&& domain.length > 0) {
+// 					this.href = domain+ "/PC/BankList/Hand?source=0&"+ userName;
+// 				} else {
+// 					this.href = "http://zhmyb.top/PC/BankList/Hand?source=0&"+ userName;
+// 				}
+	        	this.href = "http://"+goFrom+ "/PC/BankList/Hand?source=0&"+ userName;
+			});
 
-			$("#manualDeposit")
-					.on(
-							"click",
-							function() {
-								var domain = parseDomain();
-								if (typeof domain != 'undefined'
-										&& domain.length > 0) {
-									this.href = domain
-											+ "/PC/BankList/Index?source=1&"
-											+ userName;
-								} else {
-									this.href = "http://zhmyb.top/PC/BankList/Index?source=1&"
-											+ userName;
-								}
-
-							});
-
-			$("#onlineBankPay")
-					.on(
-							"click",
-							function() {
-								var domain = parseDomain();
-								if (typeof domain != 'undefined'
-										&& domain.length > 0) {
-									this.href = domain
-											+ "/lottery/online-bank.html?source=2&"
-											+ userName;
-								} else {
-									this.href = "http://zhmyb.top/lottery/online-bank.html?source=2&"
-											+ userName;
-								}
-							});
-			$("#tpPay")
-			.on(
-					"click",
-					function() {
-						var domain = parseDomain();
-						if (typeof domain != 'undefined'
-								&& domain.length > 0) {
-							document.getElementById('iframe').src = domain + "/lottery/caipay.html?source=2&" + userName;
-						} else {
-							document.getElementById('iframe').src = "http://zhmyb.top/lottery/caipay.html?source=2&"+ userName;
-						}
-					});
+			$("#manualDeposit").on("click",function() {
+				var domain = parseDomain();
+				if (typeof domain != 'undefined'&& domain.length > 0) {
+					this.href = domain+ "/PC/BankList/Index?source=1&"+ userName;
+				} else {
+					this.href = "http://zhmyb.top/PC/BankList/Index?source=1&"+ userName;
+				}
+			});
+			$("#onlineBankPay").on("click",function() {
+				var domain = parseDomain();
+				if (typeof domain != 'undefined'&& domain.length > 0) {
+					this.href = domain+ "/lottery/online-bank.html?source=2&"+ userName;
+				} else {
+					this.href = "http://zhmyb.top/lottery/online-bank.html?source=2&"+ userName;
+				}
+			});
+			$("#tpPay").on("click",function() {
+				var domain = parseDomain();
+				if (typeof domain != 'undefined'&& domain.length > 0) {
+					this.href = domain + "/lottery/third-party.html?source=2&" + userName;
+				} else {
+					this.href = "http://zhmyb.top/lottery/third-party.html?source=2&"+ userName;
+				}
+			});
 // 			$("tr.tr1 td[name=payMode] input").on("click", function(){
 // 				var paymodeType = $(this).attr("data-paymode-type");
 // 				if(paymodeType == "0"){
